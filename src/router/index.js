@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import MyTerminView from '../views/MyReactionView.vue'
+import PerformerTerminView from '../views/PerformerTerminView.vue'
 
 
 const router = createRouter({
@@ -30,9 +32,24 @@ const router = createRouter({
       component: () => import('../views/Sign-upView.vue'),
     },
     {
-      path: '/available',
+      path: '/service/available',
       name: 'availabele',
       component: () => import('../views/AvailableView.vue'),
+    },
+    {
+      path: '/service/create',
+      name: 'create',
+      component: () => import('../views/CreateView.vue'),
+    },
+    {
+      path: '/service/performerservices',
+      name: 'performer',
+      component: () => PerformerTerminView,
+    },
+    {
+      path: '/service/myreactions',
+      name: 'my',
+      component: () => MyTerminView,
     }
   ],
 })

@@ -18,7 +18,7 @@ function toggleMenu() {
       <li><RouterLink to="/">Головна</RouterLink></li>
       <!-- <li><RouterLink to="/sign-up">Реєстрація</RouterLink></li>
       <li><RouterLink to="/sign-in">Авторизація</RouterLink></li> -->
-      <li><RouterLink to="/available">Послуги</RouterLink></li>
+      <li><RouterLink to="/service/available">Послуги</RouterLink></li>
       <li><RouterLink to="/about">Про нас</RouterLink></li>
     </ul>
   </nav>
