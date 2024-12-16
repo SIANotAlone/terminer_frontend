@@ -6,7 +6,8 @@
 
     <div class="name_container">
       <div class="form__group field">
-        <input type="input" class="form__field" placeholder="Назва послуги" name="name" id='name' required value="" v-model="name" />
+        <input type="input" class="form__field" placeholder="Назва послуги" name="name" id='name' required value=""
+          v-model="name" />
         <label for="name" class="form__label">Назва послуги</label>
       </div>
     </div>
@@ -20,10 +21,14 @@
         <label for="description" class="form__label">Опис послуги</label>
       </div>
     </div>
- <label for="date_end" style="margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;">Оберіть дату закінчення послуги:</label> 
-    <input type="date" class="date_end" style="margin-left: 40%; margin-right: 40%;" v-model="date_end" > 
-    <label for="selected_service_type" style="color: aliceblue; margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;"> Оберіть тип послуг:</label>
-    <select name="service_type" id="service_type" v-model="selected_service_type" style="margin-left: 40%; margin-right: 40%;">
+    <label for="date_end" style="margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;"
+      class="metainfo">Оберіть дату закінчення послуги:</label>
+    <input type="date" class="date_end" style="margin-left: 40%; margin-right: 40%;" v-model="date_end">
+    <label for="selected_service_type"
+      style="color: aliceblue; margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;"
+      class="metainfo"> Оберіть тип послуг:</label>
+    <select name="service_type" id="service_type" v-model="selected_service_type"
+      style="margin-left: 40%; margin-right: 40%;" class="metainfo">
       <option v-for="service_type in service_types" :key="service_type.id" :value="service_type.id">{{ service_type.name
         }}</option>
 
@@ -37,28 +42,29 @@
 
 
     <fieldset>
-    <div style="margin: 20px;">
-      <legend style="color: aliceblue;">Оберіть доступний час:</legend>
-      <input type="time" name="time_start" id="selected_time_start">
-      <label for="selected_time_start" class="label_time">Оберіть час початку</label>
-      <input type="time" name="time_end" id="selected_time_end">
-      <label for="selected_time_start" class="label_time">Оберіть час закінчення</label>
-      <button @click="add_time" class="knopka_neion lusa-10" style="width: 100px;">Додати</button>
-      <ul>
-        <p style="color: aliceblue;">Обрані часи запису на послугу:</p>
-        <p v-if="selected_time.length == 0" style="color:salmon;">Покищо немає</p>
-        <div v-for="(item, index) in selected_time" :key="item in selected_time">
-          <li style="color: aliceblue;">{{ index + 1+') ' }} Початок: {{ item.time_start }} закінчення: {{ item.time_end }}</li>
-        </div>
-      </ul>
-    </div>
-      
+      <div style="margin: 20px;">
+        <legend style="color: aliceblue;">Оберіть доступний час:</legend>
+        <input type="time" name="time_start" id="selected_time_start">
+        <label for="selected_time_start" class="label_time">Оберіть час початку</label>
+        <input type="time" name="time_end" id="selected_time_end">
+        <label for="selected_time_start" class="label_time">Оберіть час закінчення</label>
+        <button @click="add_time" class="knopka_neion lusa-10" style="width: 100px;">Додати</button>
+        <ul>
+          <p style="color: aliceblue;">Обрані часи запису на послугу:</p>
+          <p v-if="selected_time.length == 0" style="color:salmon;">Покищо немає</p>
+          <div v-for="(item, index) in selected_time" :key="item in selected_time">
+            <li style="color: aliceblue;">{{ index + 1 + ') ' }} Початок: {{ item.time_start }} закінчення: {{
+              item.time_end }}</li>
+          </div>
+        </ul>
+      </div>
+
 
     </fieldset>
     <div style="display: flex; justify-content: center;">
       <button @click="create_service" class="knopka_neion lusa-10">Створити послугу</button>
     </div>
-      
+
   </div>
 </template>
 
@@ -98,6 +104,10 @@ export default {
           this.selected_service_type = this.service_types[0].id;
         }
 
+      }).catch(error => {
+        console.error(error);
+        this.$router.push({ path: '/sign-in' })
+
       })
 
   },
@@ -113,7 +123,7 @@ export default {
       date_end: '',
       service_types: [],
       selected_service_type: null,
-      available_for:[],
+      available_for: [],
       for_all: true,
       selected_time: [],
 
@@ -139,17 +149,17 @@ export default {
       document.getElementById('selected_time_start').value = null
       document.getElementById('selected_time_end').value = null
       console.log(this.selected_time)
-    }, 
+    },
     getCurentDatePlusDay() {
       const today = new Date(); // Получаем текущую дату
       today.setDate(today.getDate() + 1); // Увеличиваем день на 1
       const tomorrow = today.toISOString().split('T')[0]; // Преобразуем в строку в формате YYYY-MM-DD
-    return tomorrow;
-},
+      return tomorrow;
+    },
 
-create_service(){
-  const date = new Date(this.date_end);  
-  let data = {
+    create_service() {
+      const date = new Date(this.date_end);
+      let data = {
         "service": {
           "name": this.name,
           "description": this.description,
@@ -159,12 +169,12 @@ create_service(){
         },
         "available_for": this.available_for,
         "available_time": this.selected_time
+      }
+      console.log(data)
+      axios.post(ipconfig['backend_ip'] + "/api/service/create", data, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
+        this.notify("Послуга створена")
+      })
     }
-    console.log(data)
-    axios.post(ipconfig['backend_ip'] + "/api/service/create", data, {'headers': {'Authorization': `Bearer ` + localStorage.getItem('jwt_token')} }).then(response => {
-      this.notify("Послуга створена")
-    })
-}
   }
 
 
@@ -177,22 +187,29 @@ create_service(){
 
 
 <style>
- fieldset {
-            border-color: #ff9aff; /* Light blue border */
-            border-width: 1px; /* Optional: customize the width */
-            border-style: solid; /* Optional: set the border style */
-        }
-label{
+fieldset {
+  border-color: #ff9aff;
+  /* Light blue border */
+  border-width: 1px;
+  /* Optional: customize the width */
+  border-style: solid;
+  /* Optional: set the border style */
+}
+
+label {
   color: aliceblue;
 }
+
 .name_container {
 
   margin-bottom: 20px;
 }
+
 .description_container {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
 .title {
   color: aliceblue;
   margin-top: 20px;
@@ -346,5 +363,28 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+}
+
+@media (max-width: 768px) {
+
+  input[type="date"],
+  select {
+    margin-left: 0;
+    margin-right: 0;
+    width: 50%;
+    text-align: center;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  input[type="date"],
+  select {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 </style>

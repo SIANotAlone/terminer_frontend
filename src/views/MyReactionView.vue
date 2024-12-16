@@ -76,6 +76,10 @@ export default {
             }
         }).then(response => {
             this.my_termins = response.data
+        }).catch(error => {
+            console.error(error);
+            this.$router.push({ path: '/sign-in' })
+
         })
     },
     components: {
@@ -86,14 +90,14 @@ export default {
         const theme = 'dark';
 
         const notify = (message) => {
-      toast.success(message, {
-        autoClose: 2000,
-        theme,
-      }); // ToastOptions
+            toast.success(message, {
+                autoClose: 2000,
+                theme,
+            }); // ToastOptions
 
-    }
+        }
 
-        return { showModal,notify }
+        return { showModal, notify }
     },
     data() {
         return {
@@ -130,7 +134,7 @@ export default {
                 console.log(response.data)
                 this.showModal = false
                 this.my_termins = this.my_termins.filter(item => item.record_id !== id);
-                    this.notify("Підтверджено")
+                this.notify("Підтверджено")
             })
 
         }
