@@ -1,94 +1,83 @@
 <template>
     <Menu></Menu>
     <div class="myTermin">
-        <h1 style="display: flex; justify-content: center;">Терміни, які потребують вашої уваги:</h1>
-        <div v-if="my_termins.length == 0">
-            <br>
-            <p style="display: flex; justify-content: center;">Покищо немає термінів, які потребують вашої уваги. </p>
+        <h1 style="display: flex; justify-content: center;">
+            Терміни, які потребують вашої уваги:
+        </h1>
+        <div style="display: flex; justify-content: center;">
+            <select name="" id="" v-model="selected_regime" @change="changeRegime">
+                <option value="1">Мої терміни</option>
+                <option value="2">До мене, як виконавця</option>
+            </select>
         </div>
-        <div>
-            <div v-for="item in my_termins" :key="item.id" class="termin">
-                <div style="display: inline;">
-                    <p style="display: flex; justify-content: center;">{{ item.service }}</p>
-                    <div style="display: flex; justify-content: space-between;">
-                        <div style="display: inline;">
-                            <p><span class="details">Детальніше: </span>{{ item.description }}</p>
-                            <p><span class="details">Тип послуги: </span>{{ item.type }}</p>
-                            <p><span class="details">Запис на: </span>{{ extractTime(item.time_start) }}</p>
 
-                            <!-- <p>{{ formatDate(item.date) }} </p>
-                            <p>{{ extractTime(item.record_time) }}  </p> -->
-                            <p v-if="item.done == true" style="color:greenyellow;">Виконано:
-                                <span style="color: aliceblue;">Запис від {{ formatDate(item.date) }} на {{
-                                    extractTime(item.record_time) }}</span>
-                            </p>
-                            <!-- <p v-else style="color:orangered;">Не виконано</p> -->
-
-                        </div>
-                        <div style="display: flex;">
-                            <button class="knopka_neion lusa-10" @click="showModal = true">Реакція</button>
-                            <div v-if="showModal" class="modal">
-                                <div class="modal-content">
-                                    <span class="close" @click="showModal = false">&times;</span>
-                                    <h2 style="color: aliceblue; font-size: 24px;">Підвердіть будь ласка виконання
-                                        послуги</h2>
-                                    <br>
-                                    <p>Я погоджуюся з тим, що послуга "{{ item.service }}" на {{
-                                        extractTime(item.time_start) }} була виконана.</p>
-                                    <div style="display: flex; justify-self: center;">
-                                        <button class="knopka_neion lusa-10"
-                                            @click="confirmUserTermin(item.record_id)">Підтвердити</button>
-                                        <button class="knopka_neion lusa-10" @click="showModal = false">Закрити</button>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-
-            </div>
-
+        <div v-if="my_termins.length == 0 && this.selected_regime == 1 || performer_termins.length == 0 && this.selected_regime == 2">
+            <br />
+            <p style="display: flex; justify-content: center;">
+                Покищо немає термінів, які потребують вашої уваги.
+            </p>
         </div>
+        <div v-if="selected_regime == 1">
+            <MyReaction :my_termins="my_termins" :server_ip="server_ip" @confirm="confirmUserTermin" />
+        </div>
+        <div v-if="selected_regime == 2">
+            <PerformerReaction :performer_termins="performer_termins" :server_ip="server_ip"
+                @confirm="confirmPerformerTermin" />
+        </div>
+
 
     </div>
 </template>
 
-
 <script>
-import axios from 'axios';
-import Menu from '@/components/Menu.vue'
-import ipconfig from "@/server_configs/config.js"
+import axios from "axios";
+import Menu from "@/components/Menu.vue";
+import MyReaction from "@/components/MyReaction.vue";
+import PerformerReaction from "@/components/PerformerReaction.vue";
+import ipconfig from "@/server_configs/config.js";
+import { ref } from "vue";
 
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
-
-import { ref } from 'vue';
-
 export default {
+    components: {
+        Menu,
+        MyReaction,
+        PerformerReaction,
+    },
     mounted() {
-        axios.get(this.server_ip + '/api/termin/getallusertermins', {
+        axios.get(this.server_ip + "/api/termin/getallusertermins", {
             headers: {
-                "Authorization": "Bearer " + localStorage.getItem('jwt_token')
-            }
-        }).then(response => {
-            this.my_termins = response.data
-        }).catch(error => {
-            console.error(error);
-            this.$router.push({ path: '/sign-in' })
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+        })
+            .then((response) => {
+                if (response.data == null) {
+                    this.my_termins = [];
+                } else {
+                    this.my_termins = response.data;
+                }
+                
+            })
+            .catch((error) => {
+                console.error(error);
+                this.$router.push({ path: "/sign-in" });
+            });
 
+        axios.get(this.server_ip + "/api/termin/getallperformertermins", {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+        }).then((response) => {
+            this.performer_termins = response.data;
+        }).catch((error) => {
+            console.error(error);
+            this.$router.push({ path: "/sign-in" });
         })
     },
-    components: {
-        Menu
-    },
     setup() {
-        const showModal = ref(false);
-        const theme = 'dark';
-
+        const theme = "dark";
         const notify = (message) => {
             toast.success(message, {
                 autoClose: 2000,
@@ -97,50 +86,94 @@ export default {
 
         }
 
-        return { showModal, notify }
+        return { notify };
+
     },
     data() {
         return {
-            server_ip: ipconfig['backend_ip'],
+            server_ip: ipconfig["backend_ip"],
             my_termins: [],
-
-        }
+            performer_termins: [],
+            selected_regime: "1",
+        };
     },
     methods: {
-        formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('uk-UA'); // Преобразует дату в формат "17.11.2024"
-        },
-        extractTime(dateString) {
-            // Создаем объект Date из строки даты
-            const date = new Date(dateString);
+        changeRegime() {
+            if (this.selected_regime == 1) {
+                axios.get(this.server_ip + "/api/termin/getallusertermins", {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+        })
+            .then((response) => {
+                if (response.data == null) {
+                    this.my_termins = [];
+                }
+                else {
+                    this.my_termins = response.data;
+                }
+                
+            })
+            .catch((error) => {
+                console.error(error);
+                this.$router.push({ path: "/sign-in" });
+            });
 
-            // Проверяем, является ли дата валидной
-            if (isNaN(date.getTime())) {
-                throw new Error("Некорректная дата");
+            } else if (this.selected_regime == 2) {
+                axios.get(this.server_ip + "/api/termin/getallperformertermins", {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+            },
+        }).then((response) => {
+
+            if (response.data == null) {
+                this.performer_termins = [];
+            } else{
+                this.performer_termins = response.data;
             }
-
-            // Форматируем время в формате HH:mm:ss
-            const hours = String(date.getUTCHours()).padStart(2, '0');
-            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-            const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-
-            return `${hours}:${minutes}`;
+            
+        }).catch((error) => {
+            console.error(error);
+            this.$router.push({ path: "/sign-in" });
+        })
+            }
         },
         confirmUserTermin(id) {
-            axios.post(this.server_ip + '/api/record/confirm', {
-                "id": id
-            }, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
-                console.log(response.data)
-                this.showModal = false
-                this.my_termins = this.my_termins.filter(item => item.record_id !== id);
-                this.notify("Підтверджено")
-            })
-
+            axios
+                .post(
+                    this.server_ip + "/api/record/confirm",
+                    { id },
+                    {
+                        headers: {
+                            Authorization: `Bearer ` + localStorage.getItem("jwt_token"),
+                        },
+                    }
+                )
+                .then((response) => {
+                    this.my_termins = this.my_termins.filter(
+                        (item) => item.record_id !== id,
+                        this.notify("Виконано")
+                    );
+                });
+        },
+        confirmPerformerTermin(id) {
+            axios.post(
+                this.server_ip + '/api/record/done',{
+                    "id": id
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ` + localStorage.getItem("jwt_token"),
+                    },
+                }).then((response) => {
+                    this.performer_termins = this.performer_termins.filter(
+                        (item) => item.record_id !== id,
+                        this.notify("Виконано")
+                    )
+                })
         }
-    }
-}
-
+    },
+};
 </script>
 
 
@@ -264,4 +297,68 @@ button {
     font-size: 24px;
     cursor: pointer;
 }
+
+
+
+/* Mobile styles */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    p {
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    .myTermin {
+        margin: 10px;
+    }
+
+    .termin {
+        margin: 10px;
+        padding: 15px;
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    button {
+        width: 100%;
+        height: 50px;
+    }
+
+    .osnovanua {
+        width: 90%;
+        margin: 20px auto;
+    }
+
+    .lusa-10 {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 400px;
+        padding: 15px;
+    }
+
+    .modal {
+        padding: 10px;
+    }
+
+    .close {
+        font-size: 18px;
+        top: 5px;
+        right: 5px;
+    }
+}
+
 </style>

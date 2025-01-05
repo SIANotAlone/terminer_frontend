@@ -53,7 +53,7 @@
           <p style="color: aliceblue;">Обрані часи запису на послугу:</p>
           <p v-if="selected_time.length == 0" style="color:salmon;">Покищо немає</p>
           <div v-for="(item, index) in selected_time" :key="item in selected_time">
-            <li style="color: aliceblue;">{{ index + 1 + ') ' }} Початок: {{ item.time_start }} закінчення: {{
+            <li style="color: aliceblue;">{{ index + 1 + ') ' }} Послуга буде доступна в діапазоні з : {{ item.time_start }} по: {{
               item.time_end }}</li>
           </div>
         </ul>

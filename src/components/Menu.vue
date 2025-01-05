@@ -20,15 +20,37 @@ function toggleMenu() {
       <li><RouterLink to="/sign-in">Авторизація</RouterLink></li> -->
       <li><RouterLink to="/service/available">Послуги</RouterLink></li>
       <li><RouterLink to="/about">Про нас</RouterLink></li>
+      <li v-if="authorized"><RouterLink to="/service/myreactions">Реакції</RouterLink></li>
     </ul>
   </nav>
 </template>
+
+<script>
+export default {
+  setup() {
+    token = localStorage.getItem("jwt_token")
+    if (token == null || token == undefined || token == "") {
+      authorized = false
+    } else {
+      authorized = true
+    }
+    
+  },
+
+  data() {
+    return {
+      authorized: Boolean
+    }
+  }
+}
+</script>
 
 <style scoped>
 nav {
   display: flex;
   justify-content: right;
   align-items: center;
+  padding: 20px;
 }
 
 ul {

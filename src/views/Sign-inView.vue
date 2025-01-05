@@ -9,7 +9,7 @@
       <label for="name" class="form__label">E-Mail</label>
     </div>
     <div class="form__group field">
-      <input type="password" class="form__field" placeholder="Пароль" name="name" id='password' required />
+      <input type="password" class="form__field" placeholder="Пароль" name="name" id='password' required @keydown="get_token"/>
       <label for="name" class="form__label">Пароль</label>
     </div>
         <div class = btn_container> 

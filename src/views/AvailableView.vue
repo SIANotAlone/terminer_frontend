@@ -16,7 +16,7 @@ export default {
     Menu
 
   },
-  
+
 
   setup() {
     const theme = 'dark';
@@ -60,7 +60,12 @@ export default {
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('uk-UA'); // Преобразует дату в формат "17.11.2024"
+    },
+
+    create_service() {
+      this.$router.push({ path: '/service/create' })
     }
+
   }
 
 };
@@ -71,6 +76,9 @@ export default {
     <Menu class="menu" />
 
     <h2>Доступні мені послуги:</h2>
+    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+      <button class="knopka_neion lusa-10" @click="create_service">Створити послугу</button>
+    </div>
 
 
     <Offering v-for="item in available_for_me" :key="item.id" :offering="item" />

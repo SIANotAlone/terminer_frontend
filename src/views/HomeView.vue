@@ -24,7 +24,7 @@
 <style scoped>
 .preview {
   height: 100vh;
-  background-image: url("../assets/office.jpg");
+  /* background-image: url("../assets/office.jpg"); */
   background-size: cover;
   background-position: center;
   display: flex;
@@ -52,25 +52,6 @@ p {
   font-size: 1.2rem;
 }
 
-/* Стилі для мобільних пристроїв */
-@media (max-width: 768px) {
-  .preview {
-    height: 70vh; /* Менша висота на мобільних */
-    background-position: top; /* Адаптація позиції зображення */
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  p {
-    font-size: 1rem;
-  }
-
-  .content {
-    padding: 10px;
-  }
-}
 
 .full-screen-background {
   position: fixed;
@@ -101,6 +82,30 @@ p {
   font-size: 24px;
   font-weight: bold;
   color: #fff;
+}
+
+
+/* Стилі для мобільних пристроїв */
+@media (max-width: 768px) {
+  .preview {
+    height: 70vh; /* Менша висота на мобільних */
+    background-position: top; /* Адаптація позиції зображення */
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  .content {
+    padding: 10px;
+  }
+  .full-screen-background{
+    background-image: url("../assets/astronaut.jpg");
+  }
 }
 
 

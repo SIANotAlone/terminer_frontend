@@ -23,7 +23,7 @@
     <div v-if="showModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showModal = false">&times;</span>
-        <h2>Оберіть доступний час</h2>
+        <h2>Оберіть доступний час в діапазоні</h2>
         <br>
 
         <section class="radio-section">
@@ -32,7 +32,7 @@
             <div v-for="item in available_time" :key="item.id" class="radio-item">
               <input type="radio" :id="item.id" :value="item.id" :name="'time_group'"
                 @change="selected_time = item.id" />
-              <label :for="item.id">{{ extractTime(item.time_start) }}</label>
+              <label :for="item.id">З {{ extractTime(item.time_start) }} по {{ extractTime(item.time_end) }}</label>
             </div>
           </div>
         </section>
