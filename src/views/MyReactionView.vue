@@ -70,7 +70,10 @@ export default {
                 Authorization: "Bearer " + localStorage.getItem("jwt_token"),
             },
         }).then((response) => {
-            this.performer_termins = response.data;
+            if (response.data != null) {
+                this.performer_termins = response.data;
+            }
+            
         }).catch((error) => {
             console.error(error);
             this.$router.push({ path: "/sign-in" });
