@@ -15,12 +15,12 @@
                                 Запис від {{ formatDate(item.date) }} на {{ extractTime(item.record_time) }}
                             </span>
                         </p>
-                        <p>
+                        <!-- <p>
                             <a :href="generateGoogleCalendarLink(item.service, item.description, item.date, item.date)"
                                 target="_blank" rel="noopener noreferrer" class="google-calendar-link">
                                 📅 Додати до Google календаря
                             </a>
-                        </p>
+                        </p> -->
                     </div>
                     <div style="display: flex;">
                         <button v-if="item.done==true" class="knopka_neion lusa-10" @click="reaction(item)">Реакція</button>
