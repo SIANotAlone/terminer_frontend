@@ -61,6 +61,19 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString('uk-UA'); // Преобразует дату в формат "17.11.2024"
     },
+   removeOffering(offerId) {
+      axios.get(this.server_ip + '/api/service/available', {
+        headers: {
+        "Authorization": "Bearer " + localStorage.getItem('jwt_token')
+      }
+      }).then(response => {
+        console.log(response.data)
+        if (response.data == null) {
+          this.available_for_me = this.available_for_me.filter(item => item.id !== offerId); 
+
+        }
+      })
+  },
 
     create_service() {
       this.$router.push({ path: '/service/create' })
@@ -81,7 +94,7 @@ export default {
     </div>
 
 
-    <Offering v-for="item in available_for_me" :key="item.id" :offering="item" />
+    <Offering v-for="item in available_for_me" :key="item.id" :offering="item" @delete-offering="removeOffering"/>
 
 
   </div>

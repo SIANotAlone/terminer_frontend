@@ -7,14 +7,23 @@
                     <div class="carddetails">
                         <p><span class="details">Детальніше: </span>{{ item.description }}</p>
                         <p><span class="details">Тип послуги: </span>{{ item.type }}</p>
-                        <p><span class="details">У проміжку: </span> з {{ extractTime(item.time_start) }} до {{ extractTime(item.time_end) }}</p>
+                        <p><span class="details">У проміжку: </span> з {{ extractTime(item.time_start) }} до {{
+                            extractTime(item.time_end) }}</p>
                         <p style="color:greenyellow; white-space: pre-wrap;">Користувач:
                             <span style="color: aliceblue;">
                                 {{ item.user_record }}
                             </span>
                         </p>
-                        <p style="color: greenyellow; white-space: pre-wrap;">Запис від: <span style="color: aliceblue;">{{
-                            formatDate(item.date) }} від {{ extractTime(item.record_time) }}</span></p>
+                        <p style="color: greenyellow; white-space: pre-wrap;">Запис від: <span
+                                style="color: aliceblue;">{{
+                                    formatDate(item.date) }} від {{ extractTime(item.record_time) }}</span></p>
+                        <p>
+                            <a :href="generateGoogleCalendarLink(item.service, item.description, item.date, item.date)"
+                                target="_blank" rel="noopener noreferrer" class="google-calendar-link">
+                                📅 Додати до Google календаря
+                            </a>
+                        </p>
+
                     </div>
                     <div style="display: flex;">
                         <button class="knopka_neion lusa-10" @click="reaction(item)">Реакція</button>
@@ -26,7 +35,8 @@
                                 <br>
                                 <p>
                                     Я погоджуюся з тим, що послуга "{{ selected_item.service }}" в діапазоні від {{
-                                        extractTime(selected_item.time_start) }} до {{ extractTime(selected_item.time_end) }} була мною, як виконвацем для користувача {{ selected_item.user_record }}
+                                        extractTime(selected_item.time_start) }} до {{ extractTime(selected_item.time_end)
+                                    }} була мною, як виконвацем для користувача {{ selected_item.user_record }}
                                     виконана.
                                 </p>
                                 <div style="display: flex; justify-self: center;">
@@ -48,7 +58,6 @@
 <script>
 import { ref } from "vue";
 
-
 export default {
     props: {
         performer_termins: {
@@ -67,6 +76,7 @@ export default {
 
         return { showModal };
     },
+
     data() {
         return {
             selected_item: {},
@@ -91,6 +101,20 @@ export default {
             this.showModal = true
 
         },
+        generateGoogleCalendarLink(title, description, dateStart, dateEnd) {
+            // Форматуємо дати у вигляді YYYYMMDDTHHMMSSZ для Google Календаря
+            const startDate = new Date(dateStart).toISOString().replace(/-|:|\.\d+/g, "");
+            const endDate = new Date(dateEnd).toISOString().replace(/-|:|\.\d+/g, "");
+
+            // Створюємо URL для події
+            const baseUrl = "https://www.google.com/calendar/render?action=TEMPLATE";
+            const text = encodeURIComponent(title);
+            const details = encodeURIComponent(description);
+            const dates = `dates=${startDate}/${endDate}`;
+
+            const calendarUrl = `${baseUrl}&text=${text}&details=${details}&${dates}`;
+            return calendarUrl;
+        }
     },
 };
 </script>
@@ -151,11 +175,12 @@ export default {
 
 
 
-.card{
+.card {
     display: flex;
     justify-content: space-between;
 }
-.carddetails{
+
+.carddetails {
     display: inline;
 }
 
@@ -168,7 +193,8 @@ export default {
 
     .details {
         font-size: 14px;
-        white-space: pre-wrap; /* Сохраняет пробелы и переносы строк */
+        white-space: pre-wrap;
+        /* Сохраняет пробелы и переносы строк */
 
     }
 
@@ -194,13 +220,35 @@ export default {
     .close {
         font-size: 20px;
     }
-    .card{
+
+    .card {
         display: inline-block;
     }
-    p{
+
+    p {
         display: flex;
         justify-content: start;
     }
 
+}
+
+
+
+
+.google-calendar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: #4285F4;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.google-calendar-link:hover {
+  background-color: #357ae8;
 }
 </style>

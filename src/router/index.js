@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import MyTerminView from '../views/MyReactionView.vue'
+import MyReactionView from '../views/MyReactionView.vue'
 import PerformerTerminView from '../views/PerformerTerminView.vue'
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,14 +10,10 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-
     },
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
     {
@@ -33,7 +28,7 @@ const router = createRouter({
     },
     {
       path: '/service/available',
-      name: 'availabele',
+      name: 'available',
       component: () => import('../views/AvailableView.vue'),
     },
     {
@@ -44,12 +39,12 @@ const router = createRouter({
     {
       path: '/service/performerservices',
       name: 'performer',
-      component: () => PerformerTerminView,
+      component: PerformerTerminView,
     },
     {
       path: '/service/myreactions',
       name: 'my',
-      component: () => MyTerminView,
+      component: MyReactionView,
     }
   ],
 })

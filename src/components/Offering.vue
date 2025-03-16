@@ -97,6 +97,7 @@ export default {
       server_ip: ipconfig['backend_ip']
     }
   },
+  emits: ["delete-offering"], // Добавляем событие для удаления
   methods: {
     formatDate(dateString) {
       const date = new Date(dateString);
@@ -143,6 +144,7 @@ export default {
       }, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
         console.log(response.data)
         console.log("success")
+        this.$emit("delete-offering", this.offering.id); // Відправляємо подію в батьківський компонент
         this.showModal = false
         this.notify("Записано")
 

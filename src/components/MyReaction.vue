@@ -15,6 +15,12 @@
                                 Запис від {{ formatDate(item.date) }} на {{ extractTime(item.record_time) }}
                             </span>
                         </p>
+                        <p>
+                            <a :href="generateGoogleCalendarLink(item.service, item.description, item.date, item.date)"
+                                target="_blank" rel="noopener noreferrer" class="google-calendar-link">
+                                📅 Додати до Google календаря
+                            </a>
+                        </p>
                     </div>
                     <div style="display: flex;">
                         <button v-if="item.done==true" class="knopka_neion lusa-10" @click="reaction(item)">Реакція</button>
@@ -88,6 +94,20 @@ export default {
             this.selected_item = item;
             this.showModal = true;
         },
+        generateGoogleCalendarLink(title, description, dateStart, dateEnd) {
+            // Форматуємо дати у вигляді YYYYMMDDTHHMMSSZ для Google Календаря
+            const startDate = new Date(dateStart).toISOString().replace(/-|:|\.\d+/g, "");
+            const endDate = new Date(dateEnd).toISOString().replace(/-|:|\.\d+/g, "");
+
+            // Створюємо URL для події
+            const baseUrl = "https://www.google.com/calendar/render?action=TEMPLATE";
+            const text = encodeURIComponent(title);
+            const details = encodeURIComponent(description);
+            const dates = `dates=${startDate}/${endDate}`;
+
+            const calendarUrl = `${baseUrl}&text=${text}&details=${details}&${dates}`;
+            return calendarUrl;
+        }
     },
 };
 </script>

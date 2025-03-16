@@ -52,10 +52,14 @@
         <ul>
           <p style="color: aliceblue;">Обрані часи запису на послугу:</p>
           <p v-if="selected_time.length == 0" style="color:salmon;">Покищо немає</p>
-          <div v-for="(item, index) in selected_time" :key="item in selected_time">
-            <li style="color: aliceblue;">{{ index + 1 + ') ' }} Послуга буде доступна в діапазоні з : {{ item.time_start }} по: {{
-              item.time_end }}</li>
+          <div v-for="(item, index) in selected_time" :key="item in selected_time"
+            style="display: flex; align-items: center; gap: 10px;">
+            <li style="color: aliceblue; list-style: none; margin: 0;">
+              {{ index + 1 + ') ' }} Послуга буде доступна в діапазоні з : {{ item.time_start }} по: {{ item.time_end }}
+            </li>
+            <button @click="delete_time(index)" class="knopka_neion lusa-10" style="width: 100px;">Видалити</button>
           </div>
+
         </ul>
       </div>
 
@@ -92,6 +96,7 @@ export default {
   },
   mounted() {
     this.date_end = this.getCurentDatePlusDay()
+    document.getElementById('selected_time_start').value = this.getCurrentTime()
     axios.get(ipconfig['backend_ip'] + '/api/service/gettypes', {
       headers: {
         "Authorization": "Bearer " + localStorage.getItem('jwt_token')
@@ -149,14 +154,24 @@ export default {
       document.getElementById('selected_time_start').value = null
       document.getElementById('selected_time_end').value = null
       console.log(this.selected_time)
+      document.getElementById('selected_time_start').value = this.getCurrentTime()
     },
     getCurentDatePlusDay() {
       const today = new Date(); // Получаем текущую дату
-      today.setDate(today.getDate() + 1); // Увеличиваем день на 1
+      today.setDate(today.getDate());
       const tomorrow = today.toISOString().split('T')[0]; // Преобразуем в строку в формате YYYY-MM-DD
       return tomorrow;
     },
+    getCurrentTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
 
+      return `${hours}:${minutes}`;
+    },
+    delete_time(index) {
+      this.selected_time.splice(index, 1)
+    },
     create_service() {
       const date = new Date(this.date_end);
       let data = {
