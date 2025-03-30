@@ -47,6 +47,17 @@ export default {
         this.$router.push({ path: '/sign-in' })
 
       });
+
+      try{
+      const message = this.$route.query.message;
+
+      if (message) {
+        this.notify(message);
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
   },
 
   data() {

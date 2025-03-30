@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import MyReactionView from '../views/MyReactionView.vue'
 import PerformerTerminView from '../views/PerformerTerminView.vue'
+import PromocodeView from '../views/PromocodeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/service/myreactions',
       name: 'my',
       component: MyReactionView,
+    },
+    {
+      path: '/service/promocode',
+      name: 'promocode',
+      component: PromocodeView,
     }
   ],
 })
