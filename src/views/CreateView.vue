@@ -34,13 +34,33 @@
 
     </select>
 
-    <div class="for_all_container">
+    <div class="for_all_container" v-if ="promo_service == false">
       <label for="for_all" class="for_all_label" style="margin-right: 10px;">Доступно для всіх: </label>
-      <input type="checkbox" id="for_all" name="for_all" class="for_all" v-model="for_all">
+      <input type="checkbox" id="for_all" name="for_all" class="for_all" v-model="for_all"
+        @change="change_for_all_event">
 
     </div>
+    <fieldset v-if="!for_all">
+      <div style="margin: 20px;">
+        <legend style="color: aliceblue;">Оберіть користувачей, яким буде доступна послуга:</legend>
+        <select name="" id="select_user" v-model="selected_user">
+          <option v-for="user in users" :key="user.id" :value="user">{{ user.last_name + " " + user.first_name }}
+          </option>
+        </select>
+        <button @click="add_user" class="knopka_neion lusa-10" style="width: 100px;">Додати</button>
+        <p>Список доданих користувачей: </p>
+        <p v-if="selected_users.length == 0" style="color:salmon;">Поки що немає</p>
+        <div v-for="(item, index) in selected_users" :key="item in selected_users"
+          style="display: flex; align-items: center; justify-content: space-between;">
+          <li style="color: aliceblue; list-style: none; margin: 0;">{{ index + 1 + ')' }} {{ item.last_name + " " +
+            item.first_name }}</li>
+          <button @click="delete_selected_user(index)" class="knopka_neion lusa-10"
+            style="width: 100px;">Видалити</button>
+        </div>
 
-
+      </div>
+    </fieldset>
+    <div style="margin-top: 20px;"></div>
     <fieldset>
       <div style="margin: 20px;">
         <legend style="color: aliceblue;">Оберіть доступний час:</legend>
@@ -65,9 +85,64 @@
 
 
     </fieldset>
-    <div style="display: flex; justify-content: center;">
-      <button @click="create_service" class="knopka_neion lusa-10">Створити послугу</button>
+    <div class="promoservice" style="margin-top: 20px; margin-bottom: 20px;" v-if="for_all">
+      <label for="promoservice" class="promoservice_label" style="margin-right: 10px;">Створити промосервіс: </label>
+      <input type="checkbox" id="promoservice" name="promoservice" class="promoservice" v-model="promo_service">
+
     </div>
+    <div style="display: flex; justify-content: center;">
+      <button @click="button_create_click" class="knopka_neion lusa-10">Створити послугу</button>
+
+
+      <div v-if="showModal" class="modal">
+        <div class="modal-content">
+          <span class="close" @click="showModal = false">&times;</span>
+          <h2 style="color: aliceblue; font-size: 24px;">Підвердіть будь ласка створення послуги:
+          </h2>
+          <br>
+          <h2 v-if="promo_service == true" style="color: chocolate;">Пропомо-послуга</h2>
+          <p>Назва послуги: {{ this.name }}</p>
+          <p>Опис послуги: {{ this.description }}</p>
+          <p>Дата закінчення: {{ this.date_end }}</p>
+          <p>Тип послуги: {{ this.selected_service_type_text }}</p>
+          <div v-if="!for_all">
+            <p>Послуга буде доступна для користувачей</p>
+            <div v-for="(item, index) in selected_users" :key="item in selected_users"
+              style="display: flex; align-items: center; gap: 10px;">
+              <li style="color: aliceblue; list-style: none; margin: 0;">{{ index + 1 + ')' }} {{ item.last_name + " " +
+                item.first_name }}</li>
+            </div>
+          </div>
+          <p>Доступний час запису на послугу:</p>
+          <p v-for="(item, index) in selected_time" :key="item in selected_time" style="color: aliceblue;">{{ index + 1
+            + ') ' }} {{ item.time_start }} - {{ item.time_end }}</p>
+          <div style="display: flex; justify-self: center;">
+            <button class="knopka_neion lusa-10" @click="button_submit_click">
+              Підтвердити
+            </button>
+            <button class="knopka_neion lusa-10" @click="showModal = false">Закрити</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+
+      <div v-if="showCreatePromoModal" class="modal">
+        <div class="modal-content">
+          <span class="close" @click="showCreatePromoModal = false">&times;</span>
+          <h2 style="color: aliceblue; font-size: 24px;">Послуга успішно створена:
+          </h2>
+          <br>
+          <h1>Ваш промокод: {{ this.promo_code }}</h1>
+          <div style="display: flex; justify-self: center;">
+            
+            <button class="knopka_neion lusa-10" style="display: flex; justify-content: center;" @click="showCreatePromoModal = false">Закрити</button>
+          </div>
+        </div>
+      </div>
+    
+
 
   </div>
 </template>
@@ -76,6 +151,7 @@
 <script>
 import axios from 'axios';
 import Menu from '@/components/Menu.vue'
+import { ref } from "vue";
 
 import ipconfig from "@/server_configs/config.js"
 
@@ -84,6 +160,9 @@ import 'vue3-toastify/dist/index.css';
 
 export default {
   setup() {
+    const showModal = ref(false);
+    const showCreatePromoModal = ref(false);
+
     const theme = 'dark';
     const notify = (message) => {
       toast.success(message, {
@@ -92,7 +171,7 @@ export default {
       }); // ToastOptions
 
     }
-    return { notify }
+    return { notify, showModal, showCreatePromoModal }
   },
   mounted() {
     this.date_end = this.getCurentDatePlusDay()
@@ -104,7 +183,7 @@ export default {
     })
       .then(response => {
         this.service_types = response.data;
-        console.log(this.service_types)
+        // console.log(this.service_types)
         if (this.service_types.length > 0) {
           this.selected_service_type = this.service_types[0].id;
         }
@@ -114,6 +193,17 @@ export default {
         this.$router.push({ path: '/sign-in' })
 
       })
+    axios.get(ipconfig['backend_ip'] + '/api/user/getallusers', {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem('jwt_token')
+      }
+    }).then(response => {
+      this.users = response.data;
+      // console.log(this.users)
+    }).catch(error => {
+      console.error(error);
+      this.$router.push({ path: '/sign-in' })
+    })
 
   },
 
@@ -128,10 +218,15 @@ export default {
       date_end: '',
       service_types: [],
       selected_service_type: null,
+      selected_service_type_text: '',
       available_for: [],
       for_all: true,
       selected_time: [],
-
+      users: [],
+      selected_users: [],
+      selected_user: {},
+      promo_service: false,
+      promo_code: '',
     }
   },
 
@@ -140,6 +235,7 @@ export default {
 
       this.selected_service_type = id
       console.log(this.selected_service_type)
+
 
     },
 
@@ -172,8 +268,82 @@ export default {
     delete_time(index) {
       this.selected_time.splice(index, 1)
     },
+    delete_selected_user(index) {
+      this.selected_users.splice(index, 1)
+    },
+    add_user() {
+      this.selected_users.push(this.selected_user)
+      // console.log(this.selected_users)
+    },
+    button_create_click() {
+      for (let i = 0; i < this.service_types.length; i++) {
+        if (this.service_types[i].id == this.selected_service_type) {
+          this.selected_service_type_text = this.service_types[i].name
+        }
+      }
+
+      this.showModal = true
+    },
+    button_submit_click() {
+
+      if (this.promo_service == true) {
+        this.create_promo_service()
+      } else {
+        this.create_service()
+      }
+      this.showModal = false
+      this.clean_all()
+    },
+    create_promo_service() {
+      const date = new Date(this.date_end);
+
+      let data = {
+        "promoservice": {
+          "name": this.name,
+          "description": this.description,
+          "date_end": date.toISOString(),
+          "service_type": this.selected_service_type,
+        },
+        "available_time": this.selected_time
+      }
+      // console.log(data)
+      axios.post(ipconfig['backend_ip'] + "/api/service/create_promo", data, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
+        this.notify("Послуга створена")
+        this.promo_code = response.data.service_info.promocode
+        this.showModal = false
+        this.showCreatePromoModal = true
+      })
+      
+    },
+    clean_all() {
+      this.name = ''
+      this.description = ''
+      this.date_end = this.getCurentDatePlusDay()
+      this.selected_service_type = this.service_types[0].id
+      this.selected_time = []
+      this.available_for = []
+      this.for_all = true
+      this.selected_users = []
+      this.selected_user = {}
+      this.promo_service = false
+    },
+    change_for_all_event() {
+      if (this.for_all == false) {
+        this.promo_service = false
+      }
+    },
     create_service() {
       const date = new Date(this.date_end);
+      let available_for = []
+      if (this.for_all == false) {
+        for (let i = 0; i < this.selected_users.length; i++) {
+          available_for.push({ "user_id": this.selected_users[i].id })
+        }
+      } else {
+        available_for = this.available_for
+      }
+
+
       let data = {
         "service": {
           "name": this.name,
@@ -182,10 +352,10 @@ export default {
           "service_type": this.selected_service_type,
           "for_all": this.for_all,
         },
-        "available_for": this.available_for,
+        "available_for": available_for,
         "available_time": this.selected_time
       }
-      console.log(data)
+      // console.log(data)
       axios.post(ipconfig['backend_ip'] + "/api/service/create", data, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
         this.notify("Послуга створена")
       })
