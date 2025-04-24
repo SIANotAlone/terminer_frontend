@@ -571,5 +571,116 @@ button {
     font-size: 14px;
     padding: 8px;
   }
+
+}
+
+@media only screen and (max-width: 600px) {
+  fieldset {
+    margin: 10px !important;
+    padding: 15px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #222;
+  }
+
+  legend {
+    font-size: 1.2em;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  /* Располагаем инпуты и кнопки в колонку */
+  input[type="time"],
+  .label_time,
+  .knopka_neion {
+    display: block;
+    width: 100% !important;
+    margin: 8px 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* Увеличим кликабельную область кнопки */
+  .knopka_neion {
+    padding: 12px;
+    font-size: 1em;
+  }
+
+  /* Список выбранных времен: flex → column */
+  ul > div {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  ul li {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Удаляем фиксированную ширину, чтобы кнопка занимала всю ширину */
+  .knopka_neion {
+    width: 100% !important;
+  }
+}
+
+
+
+
+@media (max-width: 767px) {
+  .modal {
+    padding: 0 10px;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 360px;
+    margin: 20px auto;
+    padding: 16px;
+    box-sizing: border-box;
+    border-radius: 12px;
+  }
+
+  .modal-content h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .modal-content p {
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .modal-content .close {
+    font-size: 24px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .modal-content [v-for] li {
+    font-size: 16px;
+  }
+
+  .modal-content button.knopka_neion {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  .modal-content button.knopka_neion + button.knopka_neion {
+    margin-top: 4px;
+  }
+
+  /* Контейнер кнопок */
+  .modal-content > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 </style>
