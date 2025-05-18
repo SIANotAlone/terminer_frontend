@@ -1,31 +1,27 @@
 <template>
   <div class="comments-wrapper">
     <div v-if="Comments.comments_list?.length" class="comments-list">
-      <div
-        v-for="item in Comments.comments_list"
-        :key="item.id"
-        :class="[
-          'comment-card',
-          item.is_my_comment ? 'my-comment' : 'other-comment'
-        ]"
-      >
-        <p v-if="item.is_my_comment==false" class="comment-author">{{ item.comment_owner }}</p>
+      <div v-for="item in Comments.comments_list" :key="item.id" :class="[
+        'comment-card',
+        item.is_my_comment ? 'my-comment' : 'other-comment'
+      ]">
+        <p v-if="item.is_my_comment == false" class="comment-author">{{ item.comment_owner }}</p>
         <p class="comment-text">{{ item.comment }}</p>
         <p class="comment-time">
-          {{ formatDate(item.created) }}
           <span v-if="item.updated && item.updated !== item.created">
-            (edited: {{ formatDate(item.updated) }})
+            відредаговано: {{ formatDate(item.updated) }}
+          </span>
+          <span v-else>
+            {{ formatDate(item.created) }}
           </span>
         </p>
+
       </div>
     </div>
     <div v-else class="no-comments">Коментарів поки немає.</div>
 
     <div class="new-comment-section">
-      <textarea
-        v-model="new_comment"
-        placeholder="Напишіть свій коментар..."
-      ></textarea>
+      <textarea v-model="new_comment" placeholder="Напишіть свій коментар..."></textarea>
       <button class="submit-button" @click="send_new_comment">
         Написати
       </button>
@@ -184,6 +180,7 @@ textarea {
   resize: vertical;
   min-height: 80px;
   transition: border-color 0.3s;
+  color : black;
 }
 
 textarea:focus {
@@ -212,11 +209,13 @@ textarea:focus {
 .comments-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .comments-list::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .comments-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
 </style>
