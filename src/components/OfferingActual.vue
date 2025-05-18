@@ -11,8 +11,8 @@
       <p class="meta"><strong class="description">Дата закінчення: </strong>{{ formatDate(offering.date_end) }}</p>
       <p class="meta"><strong class="description">Виконавець: </strong>{{ offering.performer }} {{ offering.last_name
         }}</p>
-      <p><strong class="description">Всього термінів: </strong> {{ offering.total_slots }}</p>
-    <p><strong class="description">Заброньовано термінів: </strong> {{ offering.available_slots }}</p>
+      <p><strong class="description">Заброньовано термінів: </strong> {{  offering.booked_slots}} з {{ offering.total_slots }}</p>
+    
         <br>
     </div>
   </div>

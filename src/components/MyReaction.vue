@@ -21,6 +21,7 @@
                                 📅 Додати до Google календаря
                             </a>
                         </p>
+                        <button class="knopka_neion lusa-10" @click="show_comments(item)">Коментарі</button>
                     </div>
                     <div style="display: flex;">
                         <button v-if="item.done==true" class="knopka_neion lusa-10" @click="reaction(item)">Реакція</button>
@@ -42,6 +43,16 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div v-if="showComments" class="modal">
+                            <div class="modal-content">
+                                <span class="close" @click="showComments = false">&times;</span>
+                                    <h1>Коментарі</h1>
+                                            <comment :id="selected_service_id"></comment>
+                                    <button class="knopka_neion lusa-10" @click="showComments = false">Закрити</button>
+                                
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,7 +62,7 @@
 
 <script>
 import { ref } from "vue";
-
+import comment from "@/components/Comments.vue";
 
 export default {
     props: {
@@ -64,16 +75,20 @@ export default {
             required: true,
         },
     },
+    components: {
+        comment
+    },
     setup() {
         const showModal = ref(false);
-
+        const showComments = ref(false);
         
 
-        return { showModal };
+        return { showModal, showComments };
     },
     data() {
         return {
             selected_item: {},
+            selected_service_id: null
         }
     },
     methods: {
@@ -93,6 +108,11 @@ export default {
         reaction(item){
             this.selected_item = item;
             this.showModal = true;
+        },
+        show_comments(item){
+          this.showComments = true;
+          this.selected_service_id = item.record_id;
+        //   console.log(item);  
         },
         generateGoogleCalendarLink(title, description, dateStart, dateEnd) {
             // Форматуємо дати у вигляді YYYYMMDDTHHMMSSZ для Google Календаря
