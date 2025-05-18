@@ -94,14 +94,21 @@ export default {
             axios.post(ipconfig['backend_ip'] + "/api/record/termins", {
                 "service_id": this.offering.id
             }, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
-                this.termins = response.data['termins'];
+                if (response.data['termins'] != null) {
+                    this.termins = response.data['termins'];
+                }  else {
+                    this.termins = []
+                }
+                
                 // console.log(this.termins)
+            }).catch(error => {
+                console.error(error);
             })
 
         },
         select_termin() {
             // console.log(this.selectedTermin)
-            this.showRecords = false
+            this.showRecords = false 
             if (this.selectedTermin != null) {
                 this.showComments = true
             }
