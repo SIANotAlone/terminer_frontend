@@ -377,6 +377,7 @@ h1 {
         width: 100%;
         margin: 10px 0;
     }
+    
 }
 
 @media screen and (max-width: 480px) {
@@ -403,6 +404,10 @@ h1 {
     p {
         font-size: 12px;
     }
+    button {
+        margin-left: 20px;
+    }
+    
 }
 
 
