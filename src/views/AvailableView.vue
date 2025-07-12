@@ -256,4 +256,24 @@ h2 {
   margin-bottom: 20px;
   /* Расстояние между заголовком и контентом */
 }
+
+button {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.knopka_neion {
+  color: #fff;
+  width: 250px;
+  height: 45px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
 </style>
