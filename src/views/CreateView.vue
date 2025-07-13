@@ -371,7 +371,7 @@ export default {
 
 
 
-<style>
+<style scoped>
 fieldset {
   border-color: #ff9aff;
   /* Light blue border */
@@ -683,4 +683,53 @@ button {
     gap: 8px;
   }
 }
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    z-index: 1000;
+  }
+  .modal.show-comments {
+    z-index: 1100;
+  }
+  .modal-content {
+    position: relative;
+    background: grey;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 480px;
+    width: 90%;
+    color: #e0e0e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #ff9aff;
+  }
+  .modal-content p {
+    line-height: 1.5;
+    margin: 16px 0;
+  }
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  .close:hover {
+    color: #ff9aff;
+  }
 </style>

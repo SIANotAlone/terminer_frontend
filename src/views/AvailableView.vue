@@ -275,5 +275,37 @@ button {
   transition: all 0.3s ease;
   position: relative;
 }
+.lusa-10 {
+    border: 1px solid #ff9aff;
+    box-shadow: 0 0 5px #ff9aff, 0 0 5px #ff9aff inset;
+    color: #ff9aff;
+    background: #000;
+    z-index: 2;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.lusa-10:after {
+    position: absolute;
+    content: " ";
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: #ff9aff;
+    transition: all 0.3s ease;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+
+.lusa-10:hover {
+    color: #fff;
+}
+
+.lusa-10:hover:after {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
 
 </style>

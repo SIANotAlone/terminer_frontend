@@ -7,7 +7,9 @@
           <div class="carddetails">
             <p><span class="details">Детальніше: </span>{{ item.description }}</p>
             <p><span class="details">Тип послуги: </span>{{ item.type }}</p>
-            <p><span class="details">У проміжку: </span> з {{ extractTime(item.time_start) }} до {{ extractTime(item.time_end) }}</p>
+            <p><span class="details">У проміжку: </span>
+              з {{ extractTime(item.time_start) }} до {{ extractTime(item.time_end) }}
+            </p>
             <p class="done-text">
               Користувач:
               <span class="highlight">{{ item.user_record }}</span>
@@ -19,8 +21,7 @@
             <p>
               <a
                 :href="generateGoogleCalendarLink(item.service, item.description, item.date, item.date)"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
                 class="google-calendar-link"
               >
                 📅 Додати до Google календаря
@@ -33,31 +34,39 @@
         </div>
       </div>
   
-      <!-- Модальне вікно підтвердження -->
+      <!-- Підтвердження виконання -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
           <span class="close" @click="showModal = false">&times;</span>
           <h2>Підтвердіть виконання послуги</h2>
           <p>
-            Я погоджуюся, що послуга "{{ selected_item.service }}" від {{ extractTime(selected_item.time_start) }}
-            до {{ extractTime(selected_item.time_end) }} була мною виконана для користувача
-            <span class="highlight">{{ selected_item.user_record }}</span>.
+            Я погоджуюся, що послуга "{{ selected_item.service }}" від
+            {{ extractTime(selected_item.time_start) }} до
+            {{ extractTime(selected_item.time_end) }} була мною виконана для
+            користувача <span class="highlight">{{ selected_item.user_record }}</span>.
           </p>
           <div class="modal-actions">
-            <button class="knopka_neion lusa-10" @click="confirmUserTermin(selected_item.record_id)">Підтвердити</button>
-            <button class="knopka_neion lusa-10" @click="showModal = false">Закрити</button>
+            <button class="knopka_neion lusa-10"
+                    @click="confirmUserTermin(selected_item.record_id)">
+              Підтвердити
+            </button>
+            <button class="knopka_neion lusa-10" @click="showModal = false">
+              Закрити
+            </button>
           </div>
         </div>
       </div>
   
-      <!-- Модальне вікно коментарів -->
+      <!-- Коментарі -->
       <div v-if="showComments" class="modal show-comments">
         <div class="modal-content">
           <span class="close" @click="showComments = false">&times;</span>
           <h2>Коментарі</h2>
-          <comment :id="selected_service_id"></comment>
+          <comment :id="selected_service_id" />
           <div class="modal-actions">
-            <button class="knopka_neion lusa-10" @click="showComments = false">Закрити</button>
+            <button class="knopka_neion lusa-10" @click="showComments = false">
+              Закрити
+            </button>
           </div>
         </div>
       </div>
@@ -69,16 +78,10 @@
   import comment from "@/components/Comments.vue";
   
   export default {
-    name: "PerformerTerminList",
+    name: "PerformerReaction",
     props: {
-      performer_termins: {
-        type: Array,
-        required: true,
-      },
-      server_ip: {
-        type: String,
-        required: true,
-      },
+      performer_termins: { type: Array, required: true },
+      server_ip: { type: String, required: true },
     },
     components: { comment },
     setup() {
@@ -102,14 +105,20 @@
       reaction(item) {
         this.selected_item = item;
         this.showModal = true;
+        
       },
       confirmUserTermin(id) {
         this.$emit("confirm", id);
         this.showModal = false;
+        this.$emit("notify", {
+          message: "Послуга підтверджена успішно",
+          id,
+        });
       },
       show_comments(item) {
         this.selected_service_id = item.record_id;
         this.showComments = true;
+        // видалено повідомлення при відкритті коментарів
       },
       generateGoogleCalendarLink(title, description, dateStart, dateEnd) {
         const s = new Date(dateStart).toISOString().replace(/[-:.]|\.\d+/g, "");
@@ -207,15 +216,14 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
     box-sizing: border-box;
     text-align: center;
   }
-  
   .lusa-10:hover {
     background: #ff9aff;
     color: #000;
   }
-  
   .modal {
     position: fixed;
     inset: 0;
@@ -224,10 +232,6 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-  }
-  
-  .modal.show-comments {
-    z-index: 1100;
   }
   
   .modal-content {
@@ -271,10 +275,6 @@
     color: #ff9aff;
   }
   
-  body.modal-open {
-    overflow: hidden;
-  }
-  
   @media (max-width: 768px) {
     .termin {
       padding: 16px;
@@ -306,4 +306,3 @@
     }
   }
   </style>
-  

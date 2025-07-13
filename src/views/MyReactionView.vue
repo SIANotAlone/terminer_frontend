@@ -21,27 +21,29 @@
       </div>
   
       <div
-        v-if="(selected_regime == 1 && my_termins.length === 0) ||
-               (selected_regime == 2 && performer_termins.length === 0)"
+        v-if="(selected_regime == '1' && my_termins.length === 0) ||
+               (selected_regime == '2' && performer_termins.length === 0)"
       >
         <br />
         <p class="centered-paragraph">
-          Покищо немає термінів, які потребують вашої уваги.
+          Поки немає термінів, які потребують вашої уваги.
         </p>
       </div>
   
-      <div v-if="selected_regime == 1">
+      <div v-if="selected_regime == '1'">
         <MyReaction
           :my_termins="my_termins"
           :server_ip="server_ip"
           @confirm="confirmUserTermin"
+          @notify="handleNotify"
         />
       </div>
-      <div v-if="selected_regime == 2">
+      <div v-if="selected_regime == '2'">
         <PerformerReaction
           :performer_termins="performer_termins"
           :server_ip="server_ip"
           @confirm="confirmPerformerTermin"
+          @notify="handleNotify"
         />
       </div>
     </div>
@@ -57,6 +59,7 @@
   import "vue3-toastify/dist/index.css";
   
   export default {
+    name: "TerminsPage",
     components: { Menu, MyReaction, PerformerReaction },
     mounted() {
       this.fetchMyTermins();
@@ -64,7 +67,7 @@
     },
     data() {
       return {
-        server_ip: ipconfig["backend_ip"],
+        server_ip: ipconfig.backend_ip,
         my_termins: [],
         performer_termins: [],
         selected_regime: "1",
@@ -73,57 +76,55 @@
     methods: {
       fetchMyTermins() {
         axios
-          .get(this.server_ip + "/api/termin/getallusertermins", {
-            headers: { Authorization: "Bearer " + localStorage.getItem("jwt_token") },
+          .get(`${this.server_ip}/api/termin/getallusertermins`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt_token")}` },
           })
-          .then((res) => {
-            this.my_termins = res.data || [];
-          })
-          .catch(() => this.$router.push({ path: "/sign-in" }));
+          .then(res => (this.my_termins = res.data || []))
+          .catch(() => this.$router.push("/sign-in"));
       },
       fetchPerformerTermins() {
         axios
-          .get(this.server_ip + "/api/termin/getallperformertermins", {
-            headers: { Authorization: "Bearer " + localStorage.getItem("jwt_token") },
+          .get(`${this.server_ip}/api/termin/getallperformertermins`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt_token")}` },
           })
-          .then((res) => {
-            this.performer_termins = res.data || [];
-          })
-          .catch(() => this.$router.push({ path: "/sign-in" }));
+          .then(res => (this.performer_termins = res.data || []))
+          .catch(() => this.$router.push("/sign-in"));
       },
       selectRegime(regime) {
         this.selected_regime = regime;
-        if (regime === "1") this.fetchMyTermins();
-        else this.fetchPerformerTermins();
+        regime === "1" ? this.fetchMyTermins() : this.fetchPerformerTermins();
       },
       confirmUserTermin(id) {
         axios
-          .post(
-            this.server_ip + "/api/record/confirm",
-            { id },
-            { headers: { Authorization: "Bearer " + localStorage.getItem("jwt_token") } }
-          )
+          .post(`${this.server_ip}/api/record/confirm`, { id }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt_token")}` }
+          })
           .then(() => {
-            this.my_termins = this.my_termins.filter((item) => item.record_id !== id);
-            this.notify("Виконано");
+            this.my_termins = this.my_termins.filter(item => item.record_id !== id);
+            this.handleNotify({ message: "Підтверджено", id });
           });
       },
       confirmPerformerTermin(id) {
         axios
-          .post(
-            this.server_ip + "/api/record/done",
-            { id },
-            { headers: { Authorization: "Bearer " + localStorage.getItem("jwt_token") } }
-          )
+          .post(`${this.server_ip}/api/record/done`, { id }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt_token")}` }
+          })
           .then(() => {
-            this.performer_termins = this.performer_termins.filter((item) => item.record_id !== id);
-            this.notify("Виконано");
+            this.performer_termins = this.performer_termins.filter(item => item.record_id !== id);
+            this.handleNotify({ message: "Виконано", id });
           });
       },
-      notify(message) {
+      handleNotify({ message, id }) {
+        // показуємо toast
         toast.success(message, { autoClose: 2000, theme: "dark" });
-      },
-    },
+        // видаляємо запис з потрібного масиву
+        if (this.selected_regime === "1") {
+          this.my_termins = this.my_termins.filter(item => item.record_id !== id);
+        } else {
+          this.performer_termins = this.performer_termins.filter(item => item.record_id !== id);
+        }
+      }
+    }
   };
   </script>
   
@@ -133,64 +134,42 @@
     max-width: 600px;
     padding: 0 15px;
   }
-  
   .centered-title,
   .centered-paragraph {
     color: aliceblue;
     text-align: center;
     margin-bottom: 15px;
   }
-  
   .selector-wrapper {
     display: flex;
     justify-content: center;
     gap: 15px;
     margin-bottom: 25px;
   }
-  
-  /* Кнопки одинакового размера */
   .selector-button {
-    flex: 1 1 0; /* растягиваются равномерно */
+    flex: 1 1 0;
     max-width: 250px;
     height: 50px;
     border: 2px solid #ff9aff;
     border-radius: 8px;
     background-color: transparent;
     color: #ff9aff;
-    font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s;
   }
-  
+  .selector-button.active,
   .selector-button:hover {
     background-color: #ff9aff;
     color: #000;
   }
-  
-  .selector-button.active {
-    background-color: #ff9aff;
-    color: #000;
-    box-shadow: 0 0 10px #ff9affaa;
-  }
-  
-  /* Адаптив для мобильных */
   @media (max-width: 480px) {
-    .selector-wrapper {
-      flex-direction: column;
-      gap: 12px;
-    }
-    .selector-button {
-      max-width: 100%;
-      width: 100%;
-      height: 45px;
-      font-size: 14px;
-    }
+    .selector-wrapper { flex-direction: column; gap: 12px; }
+    .selector-button { width: 100%; height: 45px; font-size: 14px; }
   }
   </style>
   

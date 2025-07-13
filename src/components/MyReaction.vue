@@ -160,10 +160,20 @@
   }
   
   .google-calendar-link {
-    display: inline-block;
-    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background-color: #4285f4;
+    color: #fff;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .google-calendar-link:hover {
+    background-color: #357ae8;
   }
   
   .lusa-10 {
