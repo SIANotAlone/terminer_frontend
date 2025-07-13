@@ -161,6 +161,27 @@ export default {
     justify-content: center;
     align-items: center;
 }
+.lusa-10 {
+    display: block;
+    margin: 12px auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: 1px solid #ff9aff;
+    box-shadow: 0 0 5px #ff9aff, inset 0 0 5px #ff9aff;
+    background: inherit;
+    color: #ff9aff;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .lusa-10:hover {
+    background: #ff9aff;
+    color: #000;
+  }
 
 @media (max-width: 600px) {
     .PromocodePage {

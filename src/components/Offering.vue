@@ -1,54 +1,41 @@
 <template>
-
-
   <div class="offering-wrapper">
-    <h3 align="center">{{ offering.name }}</h3>
+    <h3>{{ offering.name }}</h3>
     <div class="offering-details">
 
       <p><strong class="description">Детальніше: </strong>{{ offering.description }}</p>
       <p class="meta"><strong class="description">Тип послуги: </strong>{{ offering.service_type }}</p>
-
       <p class="meta"><strong class="description">Дата закінчення: </strong>{{ formatDate(offering.date_end) }}</p>
-      <p class="meta"><strong class="description">Виконавець: </strong>{{ offering.first_name }} {{ offering.last_name
-        }}</p>
-      <div style="display: flex; justify-content: center;">
-        <button class="knopka_neion lusa-10" @click="show_dialog">Записатись</button>
+      <p class="meta"><strong class="description">Виконавець: </strong>{{ offering.first_name }} {{ offering.last_name }}</p>
 
+      <div class="button-wrapper">
+        <button class="btn-record" @click="show_dialog">Записатись</button>
       </div>
 
     </div>
-
-
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showModal = false">&times;</span>
         <h2>Оберіть доступний час в діапазоні</h2>
-        <br>
 
         <section class="radio-section">
           <div class="radio-list">
-
             <div v-for="item in available_time" :key="item.id" class="radio-item">
-              <input type="radio" :id="item.id" :value="item.id" :name="'time_group'"
-                @change="selected_time = item.id" />
+              <input type="radio" :id="item.id" :value="item.id" :name="'time_group'" @change="selected_time = item.id" />
               <label :for="item.id">З {{ extractTime(item.time_start) }} по {{ extractTime(item.time_end) }}</label>
             </div>
           </div>
         </section>
 
-        <br>
-        <div style="display: flex; justify-content: center; ">
-          <button @click="make_record" class="knopka_neion lusa-10" style="width: 150px;">Записатись</button>
-          <button @click="showModal = false" class="knopka_neion lusa-10" style="width: 150px;">Назад</button>
+        <div class="modal-buttons">
+          <button @click="make_record" class="btn-record">Записатись</button>
+          <button @click="showModal = false" class="btn-cancel">Назад</button>
         </div>
 
       </div>
     </div>
   </div>
-  <br>
-  <br>
-  <br>
 </template>
 
 <script>
@@ -157,274 +144,232 @@ export default {
 </script>
 <style scoped>
 .offering-wrapper {
-  display: block;
-  color: white;
-  border-radius: 10px;
+  background: #1e1e2f;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(255, 154, 255, 0.2);
   border: 1px solid #ff9aff;
-  margin-top: 20px;
-  margin-left: 20%;
-  margin-right: 20%;
-
+  max-width: 500px;
+  margin: 25px auto;
+  padding: 20px 30px;
+  color: #eee;
+  font-family: 'Lato', sans-serif;
+  transition: transform 0.3s ease;
 }
 
-.offering-details {
-  display: inline;
+/* .offering-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(255, 154, 255, 0.4);
+} */
+
+h3 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #ff9aff;
+}
+
+.offering-details p {
+  font-size: 15px;
+  margin: 8px 0;
+  color: #ccc;
 }
 
 .description {
-  color: darkgray;
-}
-
-h3 {
-  margin-top: 15px;
-  font-weight: 700;
-  font-size: 18px;
-  font-style: bold;
-}
-
-p {
-  font-size: 14px;
-  margin-right: 25px;
-  margin-left: 25px;
-  margin-top: 10px;
-}
-
-.lusa-10 {
-  border: 1px solid #ff9aff;
-  box-shadow: 0 0 5px #ff9aff, 0 0 5px #ff9aff inset;
   color: #ff9aff;
-  background: #000;
-  z-index: 2;
-  transition: all 0.3s ease;
-  overflow: hidden;
+  font-weight: 600;
 }
 
-.lusa-10:after {
-  position: absolute;
-  content: " ";
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  background: #ff9aff;
-  transition: all 0.3s ease;
-  -webkit-transform: scale(0);
-  transform: scale(0);
+.meta {
+  color: #bbb;
+  margin-left: 5px;
+  font-size: 14px;
 }
 
-.lusa-10:hover {
-  color: #fff;
-}
-
-.lusa-10:hover:after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-}
-
-.osnovanua {
-  width: 90%;
-  margin: 40px auto;
-  text-align: center;
-}
-
-button {
-  margin: 20px;
+.button-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  margin-top: 20px;
 }
 
-.knopka_neion {
-  color: #fff;
-  width: 250px;
-  height: 45px;
-  font-family: 'Lato', sans-serif;
-  font-weight: 500;
-  background: transparent;
+.btn-record {
+  background: linear-gradient(135deg, #ff6aff, #ff00ff);
+  border: none;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
+  box-shadow: 0 5px 10px rgba(255, 105, 180, 0.6);
   transition: all 0.3s ease;
   position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
+
+.btn-record:hover {
+  background: linear-gradient(135deg, #ff00ff, #ff6aff);
+  box-shadow: 0 8px 20px rgba(255, 0, 255, 0.8);
+  transform: scale(1.05);
+}
+
+.btn-record:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px rgba(255, 154, 255, 0.7);
+}
+
+/* Модалка */
 
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(20, 20, 30, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .modal-content {
-  background: grey;
-  padding: 20px;
-  border-radius: 10px;
+  background: #2c2c44;
+  border-radius: 12px;
+  padding: 25px 30px;
+  max-width: 480px;
   width: 90%;
-  max-width: 500px;
+  color: #ddd;
+  box-shadow: 0 8px 30px rgba(255, 154, 255, 0.4);
+  position: relative;
   text-align: center;
 }
 
 .close {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
+  right: 15px;
+  top: 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ff9aff;
   cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.close:hover {
+  color: #ff5aff;
 }
 
-a {
-  text-decoration: none;
+h2 {
+  margin-bottom: 20px;
+  color: #ffb0ff;
+  font-weight: 700;
 }
 
-ul {
-  list-style-type: none;
-}
-
-body {
-  background-color: rgb(19, 18, 21);
-  color: #ffffff;
-}
+/* Радио кнопки */
 
 .radio-section {
   display: flex;
-  align-items: center;
   justify-content: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-h1 {
-  margin-bottom: 20px;
+.radio-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
-.radio-item [type="radio"] {
+.radio-item {
+  margin: 8px 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+.radio-item input[type="radio"] {
   display: none;
-}
-
-.radio-item+.radio-item {
-  margin-top: 15px;
 }
 
 .radio-item label {
   display: block;
-  padding: 20px 60px;
-  background: #050505;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: 400;
-  min-width: 250px;
-  white-space: nowrap;
-  position: relative;
-  transition: 0.4s ease-in-out 0s;
-}
-
-.radio-item label:after,
-.radio-item label:before {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-}
-
-.radio-item label:after {
-  height: 19px;
-  width: 19px;
+  padding: 15px 40px;
+  background: #111122;
   border: 2px solid #ff9aff;
-  left: 19px;
-  top: calc(50% - 12px);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ddd;
+  transition: all 0.3s ease;
+  user-select: none;
+  text-align: center;
+  position: relative;
 }
-
-.radio-item label:before {
+/* 
+.radio-item label:hover {
   background: #ff9aff;
-  height: 20px;
-  width: 20px;
-  left: 21px;
-  top: calc(50%-5px);
-  transform: scale(5);
-  opacity: 0;
-  visibility: hidden;
-  transition: 0.4s ease-in-out 0s;
+  color: #1a001a;
+  border-color: #ff6aff;
+} */
+
+.radio-item input[type="radio"]:checked + label {
+  background: #ff9aff;
+  color: #1a001a;
+  border-color: #ff6aff;
+  box-shadow: 0 0 12px 2px #ff6aff;
 }
 
-.radio-item [type="radio"]:checked~label {
-  border-color: #ff9aff;
+/* Кнопки в модалке */
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.radio-item [type="radio"]:checked~label::before {
-  opacity: 1;
-  visibility: visible;
-  transform: scale(1);
+.btn-cancel {
+  background: transparent;
+  border: 2px solid #ff9aff;
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  color: #ff9aff;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Media Queries for Mobile Devices */
-@media screen and (max-width: 768px) {
+.btn-cancel:hover {
+  background-color: #ff9aff;
+  color: #1a001a;
+}
+
+/* Адаптивность */
+
+@media (max-width: 480px) {
   .offering-wrapper {
-    margin-left: 5%;
-    margin-right: 5%;
-  }
-
-  .offering-details {
-    text-align: center;
+    margin: 20px 10px;
+    padding: 15px 20px;
   }
 
   h3 {
-    font-size: 16px;
+    font-size: 20px;
   }
 
-  p {
+  .offering-details p {
     font-size: 14px;
-    margin-left: 10px;
-    margin-right: 10px;
   }
 
-  .knopka_neion {
-    width: 200px;
-  }
-
-  .modal-content {
-    width: 90%;
-    max-width: 400px;
-  }
-
-  button {
+  .btn-record, .btn-cancel {
     width: 100%;
-    margin: 10px 0;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .offering-wrapper {
-    margin-left: 5%;
-    margin-right: 5%;
-  }
-
-  .knopka_neion {
-    width: 90%;
-    height: 40px;
-  }
-
-  .modal-content {
-    width: 90%;
-    max-width: 350px;
+    padding: 12px 0;
   }
 
   .radio-item label {
-    padding: 10px 30px;
-    font-size: 16px;
-  }
-
-  p {
-    font-size: 12px;
+    font-size: 14px;
+    padding: 12px 20px;
   }
 }
 </style>

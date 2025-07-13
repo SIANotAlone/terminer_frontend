@@ -21,18 +21,16 @@
         <label for="description" class="form__label">Опис послуги</label>
       </div>
     </div>
-    <label for="date_end" style="margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;"
-      class="metainfo">Оберіть дату закінчення послуги:</label>
-    <input type="date" class="date_end" style="margin-left: 40%; margin-right: 40%;" v-model="date_end">
-    <label for="selected_service_type"
-      style="color: aliceblue; margin-bottom: 10px; margin-top: 20px; display: flex; justify-content: center;"
-      class="metainfo"> Оберіть тип послуг:</label>
-    <select name="service_type" id="service_type" v-model="selected_service_type"
-      style="margin-left: 40%; margin-right: 40%;" class="metainfo">
-      <option v-for="service_type in service_types" :key="service_type.id" :value="service_type.id">{{ service_type.name
-        }}</option>
+    <label for="date_end" class="metainfo centered-label">Оберіть дату закінчення послуги:</label>
+<input type="date" class="date_end centered-input" v-model="date_end">
 
-    </select>
+<label for="selected_service_type" class="metainfo centered-label">Оберіть тип послуг:</label>
+<select name="service_type" id="service_type" v-model="selected_service_type" class="metainfo centered-input">
+  <option v-for="service_type in service_types" :key="service_type.id" :value="service_type.id">
+    {{ service_type.name }}
+  </option>
+</select>
+
 
     <div class="for_all_container" v-if ="promo_service == false">
       <label for="for_all" class="for_all_label" style="margin-right: 10px;">Доступно для всіх: </label>
@@ -732,4 +730,312 @@ button {
   .close:hover {
     color: #ff9aff;
   }
+  .create_page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #1e1e2f;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.title {
+  color: aliceblue;
+  margin: 20px 0;
+  font-size: 28px;
+  text-align: center;
+}
+
+.name_container,
+.description_container {
+  margin-bottom: 20px;
+}
+
+label {
+  color: aliceblue;
+  font-size: 14px;
+}
+
+input[type="date"],
+select,
+input[type="time"] {
+  display: block;
+  width: 60%;
+  margin: 10px auto;
+  padding: 10px;
+  background-color: #2a2a40;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: white;
+}
+
+.metainfo {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: aliceblue;
+}
+
+.for_all_container,
+.promoservice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+fieldset {
+  border-color: #ff9aff;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  margin: 20px 0;
+  padding: 15px;
+}
+
+legend {
+  color: aliceblue;
+  font-weight: bold;
+}
+
+
+
+ul {
+  padding: 0;
+}
+
+li {
+  color: aliceblue;
+  list-style: none;
+  margin: 5px 0;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #2a2a40;
+  padding: 20px;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 80%;
+  color: aliceblue;
+}
+
+.modal-content h2 {
+  text-align: center;
+  font-size: 22px;
+}
+
+.modal-content p {
+  margin: 10px 0;
+}
+
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #ccc;
+}
+
+.label_time {
+  color: aliceblue;
+  display: block;
+  margin-top: 10px;
+}
+
+.selected-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+@media (max-width: 600px) {
+  input[type="date"],
+  select,
+  input[type="time"] {
+    width: 90%;
+  }
+
+  .modal-content {
+    width: 90%;
+  }
+}
+
+/* ---------- Для экранов до 600px ---------- */
+@media only screen and (max-width: 600px) {
+  fieldset {
+    margin: 10px !important;
+    padding: 15px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #222;
+  }
+
+  legend {
+    font-size: 1.2em;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  input[type="time"],
+  .label_time,
+  .knopka_neion {
+    display: block;
+    width: 100% !important;
+    margin: 8px 0 !important;
+    box-sizing: border-box;
+  }
+
+  .knopka_neion {
+    padding: 12px;
+    font-size: 1em;
+    width: 100% !important;
+  }
+
+  ul > div {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  ul li {
+    margin: 0;
+    padding: 0;
+  }
+
+  input[type="date"],
+  select,
+  input[type="time"] {
+    width: 90%;
+  }
+
+  .modal-content {
+    width: 90%;
+  }
+}
+
+/* ---------- Для экранов до 768px ---------- */
+@media (max-width: 768px) {
+  input[type="date"],
+  select {
+    margin-left: 0;
+    margin-right: 0;
+    width: 50%;
+    text-align: center;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+}
+
+/* ---------- Для экранов до 480px ---------- */
+@media (max-width: 480px) {
+  input[type="date"],
+  select {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+/* ---------- Для модальных окон на маленьких экранах ---------- */
+@media (max-width: 767px) {
+  .modal {
+    padding: 0 10px;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 360px;
+    margin: 20px auto;
+    padding: 16px;
+    box-sizing: border-box;
+    border-radius: 12px;
+  }
+
+  .modal-content h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .modal-content p {
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .modal-content .close {
+    font-size: 24px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .modal-content [v-for] li {
+    font-size: 16px;
+  }
+
+  .modal-content button.knopka_neion {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  .modal-content button.knopka_neion + button.knopka_neion {
+    margin-top: 4px;
+  }
+
+  .modal-content > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.centered-label {
+  margin: 20px 0 10px 0;
+  display: flex;
+  justify-content: center;
+  color: aliceblue;
+}
+
+.centered-input {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 40%;
+  min-width: 200px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .centered-input {
+    width: 80%;
+  }
+}
+
+
 </style>
