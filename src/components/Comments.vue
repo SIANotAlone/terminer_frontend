@@ -159,7 +159,7 @@ export default {
 
 .no-comments {
   font-style: italic;
-  color: #888;
+  color: #f2a138;
   margin-bottom: 12px;
   text-align: center;
 }

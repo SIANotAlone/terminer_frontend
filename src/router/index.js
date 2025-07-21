@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import MyReactionView from '../views/MyReactionView.vue'
 import PerformerTerminView from '../views/PerformerTerminView.vue'
 import PromocodeView from '../views/PromocodeView.vue'
+import MyActualComments from '../views/MyAllCommentsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,7 +52,12 @@ const router = createRouter({
       path: '/service/promocode',
       name: 'promocode',
       component: PromocodeView,
-    }
+    },
+    {
+      path: '/comments',
+      name: 'myallcomments',
+      component: MyActualComments,
+    },
   ],
 })
 

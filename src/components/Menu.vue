@@ -21,6 +21,7 @@ function toggleMenu() {
       <li><RouterLink to="/service/available">Послуги</RouterLink></li>
       <li><RouterLink to="/about">Про нас</RouterLink></li>
       <li v-if="authorized"><RouterLink to="/service/myreactions">Реакції</RouterLink></li>
+      <li v-if="authorized"><RouterLink to="/comments">Коментарі</RouterLink></li>
       <li><RouterLink to="/service/promocode">Промокод</RouterLink></li>
     </ul>
   </nav>
