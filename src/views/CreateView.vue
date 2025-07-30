@@ -1033,7 +1033,11 @@ li {
 
 @media (max-width: 600px) {
   .centered-input {
-    width: 80%;
+    display: block;
+    margin: 0 auto !important;
+    width: 80% !important;
+    text-align: center;
+    float: none;
   }
 }
 
