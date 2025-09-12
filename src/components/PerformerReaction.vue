@@ -108,10 +108,10 @@
         
       },
       confirmUserTermin(id) {
-        this.$emit("confirm", id);
+        // this.$emit("confirm", id);
         this.showModal = false;
         this.$emit("notify", {
-          message: "Послуга підтверджена успішно",
+          message: "Послуга виконана",
           id,
         });
       },
