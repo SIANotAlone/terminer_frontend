@@ -108,12 +108,12 @@
         
       },
       confirmUserTermin(id) {
-        // this.$emit("confirm", id);
+        this.$emit("confirm", id);
         this.showModal = false;
-        this.$emit("notify", {
-          message: "Послуга виконана",
-          id,
-        });
+        // this.$emit("notify", {
+        //   message: "Послуга виконана",
+        //   id,
+        // });
       },
       show_comments(item) {
         this.selected_service_id = item.record_id;
