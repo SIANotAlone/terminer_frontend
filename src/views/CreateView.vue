@@ -31,6 +31,16 @@
   </option>
 </select>
 
+<div v-if="selected_service_type === 1">
+  <label for="selected_massage_type" class="metainfo centered-label">Оберіть тип масажу:</label>
+  <select name="massage_type" id="massage_type" v-model="selected_massage_type" class="metainfo centered-input">
+    <option v-for="massage_type in massage_types" :key="massage_type.id" :value="massage_type.id">
+      {{ massage_type.name  }}  <span v-if="massage_type.casual_name">({{ massage_type.casual_name }})</span>
+    </option>
+  </select>
+</div>
+
+
 
     <div class="for_all_container" v-if ="promo_service == false">
       <label for="for_all" class="for_all_label" style="margin-right: 10px;">Доступно для всіх: </label>
@@ -203,6 +213,18 @@ export default {
       this.$router.push({ path: '/sign-in' })
     })
 
+    axios.get(ipconfig['backend_ip'] + '/api/service/getmassagetypes', {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem('jwt_token')
+      }
+    }).then(response => {
+      this.massage_types = response.data;
+      this.selected_massage_type = this.massage_types[0].id
+      // console.log(this.massage_types)
+    }).catch(error => {
+      console.error(error);
+    })
+
   },
 
   components: {
@@ -225,6 +247,9 @@ export default {
       selected_user: {},
       promo_service: false,
       promo_code: '',
+      massage_types: [],
+      selected_massage_type: null,
+      selected_massage_type_text: '',
     }
   },
 
@@ -324,6 +349,7 @@ export default {
       this.selected_users = []
       this.selected_user = {}
       this.promo_service = false
+      this.selected_massage_type = this.massage_types[0].id
     },
     change_for_all_event() {
       if (this.for_all == false) {
@@ -341,6 +367,10 @@ export default {
         available_for = this.available_for
       }
 
+      let massage_type = null
+      if (this.selected_massage_type ===1){
+        massage_type = this.selected_massage_type
+      }
 
       let data = {
         "service": {
@@ -349,6 +379,7 @@ export default {
           "date_end": date.toISOString(),
           "service_type": this.selected_service_type,
           "for_all": this.for_all,
+          "massage_type": massage_type
         },
         "available_for": available_for,
         "available_time": this.selected_time

@@ -4,6 +4,7 @@ import MyReactionView from '../views/MyReactionView.vue'
 import PerformerTerminView from '../views/PerformerTerminView.vue'
 import PromocodeView from '../views/PromocodeView.vue'
 import MyActualComments from '../views/MyAllCommentsView.vue'
+import StatisticView from '@/views/StatisticView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -58,6 +59,12 @@ const router = createRouter({
       name: 'myallcomments',
       component: MyActualComments,
     },
+    {
+      path: '/statistics',
+      name: 'statistics',
+      component: StatisticView,
+    }
+    
   ],
 })
 

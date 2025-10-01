@@ -23,6 +23,7 @@ function toggleMenu() {
       <li v-if="authorized"><RouterLink to="/service/myreactions">Реакції</RouterLink></li>
       <li v-if="authorized"><RouterLink to="/comments">Коментарі</RouterLink></li>
       <li><RouterLink to="/service/promocode">Промокод</RouterLink></li>
+      <li><RouterLink to="/statistics">Статистика</RouterLink></li>
     </ul>
   </nav>
 </template>
