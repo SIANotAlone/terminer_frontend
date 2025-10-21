@@ -1092,5 +1092,10 @@ li {
   }
 }
 
+input[type="time"]{
+text-align: center;
+width: 60%; 
+  max-width: 300px;
+}
 
 </style>

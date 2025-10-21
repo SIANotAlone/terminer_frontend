@@ -135,6 +135,7 @@
  </script>
  
  <style scoped>
+ /* -------------------- ДЕСКТОП СТИЛІ (ЗА ЗАМОВЧУВАННЯМ > 500PX) -------------------- */
  .offering-wrapper {
    background: #1e1e2f;
    border-radius: 15px;
@@ -149,14 +150,14 @@
    
    /* Flexbox для розміщення вмісту картки та кнопки поруч */
    display: flex;
-   align-items: center; 
+   align-items: center; /* Вирівнювання по вертикалі */
    justify-content: space-between; 
  }
  
- /* Контейнер для основного вмісту картки, щоб він займав більшість місця */
+ /* Контейнер для основного вмісту картки */
  .card-content {
     flex-grow: 1; 
-    padding-right: 20px; 
+    padding-right: 20px; /* Відступ від кнопки "Редагувати" */
  }
  
  h3 {
@@ -190,7 +191,7 @@
    margin-top: 20px;
  }
  
- /* Стилі для кнопки "Редагувати" */
+ /* Стилі для кнопки "Редагувати" на десктопі */
 .btn-edit {
   background: transparent;
   border: 2px solid #ff9aff; 
@@ -203,7 +204,7 @@
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.3s ease;
-  align-self: center; 
+  align-self: center; /* Вирівнювання по центру у flex-row */
 }
 
 .btn-edit:hover {
@@ -212,7 +213,39 @@
   box-shadow: 0 4px 15px rgba(255, 154, 255, 0.5);
   transform: scale(1.05);
 }
+
+
+/* -------------------- МОБІЛЬНІ СТИЛІ (<= 500PX) -------------------- */
+@media (max-width: 500px) {
+    .offering-wrapper {
+        /* Перемикаємо flex-напрямок на вертикальний */
+        flex-direction: column;
+        align-items: stretch; /* Розтягуємо елементи на всю ширину */
+        padding: 20px; 
+    }
+
+    .card-content {
+        padding-right: 0; /* Прибираємо відступ, який був потрібен для десктопу */
+        width: 100%; 
+    }
+
+    .btn-edit {
+        /* Переміщуємо кнопку вниз */
+        order: 10; 
+        width: 100%; /* На всю ширину */
+        margin-top: 20px; /* Відступ зверху */
+        text-align: center; 
+        align-self: auto; 
+    }
+
+    /* Відцентруємо заголовок, оскільки card-content тепер займає всю ширину */
+    h3 {
+        text-align: center;
+    }
+}
  
+ /* -------------------- ІНШІ ІСНУЮЧІ СТИЛІ БЕЗ ЗМІН -------------------- */
+
  .btn-record {
    background: linear-gradient(135deg, #ff6aff, #ff00ff);
    border: none;
