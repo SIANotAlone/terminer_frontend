@@ -111,8 +111,9 @@
           <h2 v-if="promo_service == true" style="color: chocolate;">Пропомо-послуга</h2>
           <p>Назва послуги: {{ this.name }}</p>
           <p>Опис послуги: {{ this.description }}</p>
-          <p>Дата закінчення: {{ this.date_end }}</p>
+          <p>Дата закінчення: {{ this.formatted_date_end }}</p>
           <p>Тип послуги: {{ this.selected_service_type_text }}</p>
+          <p v-if="selected_service_type===1">Тип масажу: {{ this.selected_massage_type_text }}</p>
           <div v-if="!for_all">
             <p>Послуга буде доступна для користувачей</p>
             <div v-for="(item, index) in selected_users" :key="item in selected_users"
@@ -252,7 +253,17 @@ export default {
       selected_massage_type_text: '',
     }
   },
-
+  computed: {
+    formatted_date_end() {
+      // Перевіряємо, чи є дата і чи вона відповідає очікуваному формату ISO
+      if (this.date_end && this.date_end.includes('-')) {
+        const parts = this.date_end.split('-'); // ['YYYY', 'MM', 'DD']
+        // Форматуємо в DD.MM.YYYY
+        return `${parts[2]}.${parts[1]}.${parts[0]}`; 
+      }
+      return this.date_end; // Повертаємо, як є, якщо не вдалося сформувати
+    }
+  },
   methods: {
     get_selected_service_type(id) {
 
@@ -302,6 +313,15 @@ export default {
       for (let i = 0; i < this.service_types.length; i++) {
         if (this.service_types[i].id == this.selected_service_type) {
           this.selected_service_type_text = this.service_types[i].name
+        }
+      }
+        this.selected_massage_type_text = ''; // Обов'язково скидаємо, якщо послуга не масаж
+
+      if (this.selected_service_type === 1 && this.selected_massage_type) {
+        const found_massage = this.massage_types.find(m => m.id === this.selected_massage_type);
+        if (found_massage) {
+          // Якщо знайдено, зберігаємо його назву для відображення
+          this.selected_massage_type_text = found_massage.name + (found_massage.casual_name ? ` (${found_massage.casual_name})` : '');
         }
       }
 
@@ -368,7 +388,7 @@ export default {
       }
 
       let massage_type = null
-      if (this.selected_massage_type ===1){
+      if (this.selected_service_type ===1){
         massage_type = this.selected_massage_type
       }
 

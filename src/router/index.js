@@ -40,6 +40,11 @@ const router = createRouter({
       component: () => import('../views/CreateView.vue'),
     },
     {
+      path: '/service/edit/:uuid',
+      name: 'edit',
+      component: () => import('../views/EditView.vue'),
+    },
+    {
       path: '/service/performerservices',
       name: 'performer',
       component: PerformerTerminView,

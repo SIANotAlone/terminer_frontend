@@ -5,6 +5,7 @@
   
         <p><strong class="description">Детальніше: </strong>{{ offering.description }}</p>
         <p class="meta"><strong class="description">Тип послуги: </strong>{{ offering.service_type }}</p>
+        <p v-if="offering.massage_type !== ''" class="meta"><strong class="description">Тип масажу: </strong>{{ offering.massage_type }}</p>
         <p class="meta"><strong class="description">Дата створення: </strong>{{ formatDate(offering.date) }}</p>
         <p class="meta"><strong class="description">Дата закінчення: </strong>{{ formatDate(offering.date_end) }}</p>
         <p class="meta"><strong class="description">Виконавець: </strong>{{ offering.performer }} {{ offering.last_name }}</p>

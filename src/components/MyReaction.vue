@@ -6,6 +6,7 @@
         <div class="card">
           <p><span class="details">Детальніше: </span>{{ item.description }}</p>
           <p><span class="details">Тип послуги: </span>{{ item.type }}</p>
+          <p v-if="item.massage_type !== ''"><span class="details">Тип масажу: </span>{{ item.massage_type }}</p>
           <p><span class="details">У проміжку: </span> з {{ extractTime(item.time_start) }} до {{ extractTime(item.time_end) }}</p>
           <p><span class="details">Виконавець: </span>{{ item.performer }}</p>
   
