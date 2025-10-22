@@ -1,6 +1,6 @@
 <template>
     <Menu />
-    <div class="chat-wrapper">
+    <div class="chat-wrapper" style="margin-top: 70px;">
       <h3>Список ваших термінів з коментарями:</h3>
       <ul class="chat-list">
         <li v-for="termin in TerminsWithComments" :key="termin.id" class="chat-item" @click="selectService(termin)">

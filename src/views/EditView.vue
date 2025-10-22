@@ -1,6 +1,6 @@
 <template>
   <Menu></Menu>
-  <div class="create_page">
+  <div class="create_page" style="margin-top: 70px;">
 
     <h1 class="title">Редагувати послугу</h1>
     <p v-if="loading" style="color: #ff9aff; text-align: center;">Завантаження даних послуги...</p>
@@ -111,7 +111,32 @@
       </fieldset>
 
       <div style="display: flex; justify-content: center;">
-        <button @click="button_edit_click" class="knopka_neion lusa-10">Зберегти зміни</button>
+       
+         <div v-if="!loading && !error">
+  <div style="display: block; justify-content: center; margin-top: 20px;">
+    <button @click="button_edit_click" class="knopka_neion lusa-10">Зберегти зміни</button>
+    
+    <button @click="confirm_delete_service" class="knopka_neion delete-lusa-10">Видалити послугу</button>
+
+    <div v-if="showDeleteServiceModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showDeleteServiceModal = false">&times;</span>
+        <h2 style="color: salmon; font-size: 24px;">⛔ УВАГА! Видалення послуги</h2>
+        <br>
+        <p style="color: aliceblue;">Ви дійсно хочете НАЗАВЖДИ видалити послугу {{ name }}?</p>
+        <p style="color: salmon; font-weight: bold;">Цю дію неможливо буде скасувати. Будь ласка, підтвердіть.</p>
+
+        <div style="display: flex; justify-self: center;">
+          <button class="knopka_neion delete-lusa-10" @click="execute_delete_service">
+            Так, видалити назавжди
+          </button>
+          <button class="knopka_neion lusa-10" @click="showDeleteServiceModal = false">Скасувати</button>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
 
         <div v-if="showModal" class="modal">
           <div class="modal-content">
@@ -223,7 +248,7 @@ export default {
     // НОВІ ref для модальних вікон ДОДАВАННЯ
     const showUserAddModal = ref(false);
     const showTimeAddModal = ref(false);
-
+    const showDeleteServiceModal = ref(false);
     const theme = 'dark';
     const notify = (message) => {
       toast.success(message, { autoClose: 2000, theme, });
@@ -238,7 +263,8 @@ export default {
         showUserDeleteModal, 
         showTimeDeleteModal,
         showUserAddModal,
-        showTimeAddModal
+        showTimeAddModal,
+        showDeleteServiceModal
     }
   },
 
@@ -603,6 +629,43 @@ export default {
       }
     },
     
+
+    /**
+     * Відображає модальне вікно для підтвердження видалення послуги.
+     */
+    confirm_delete_service() {
+      this.showDeleteServiceModal = true;
+    },
+
+    /**
+     * Виконує фактичне видалення послуги після підтвердження.
+     */
+    async execute_delete_service() {
+      this.showDeleteServiceModal = false;
+
+      try {
+        const data = { 
+          "id": this.service_uuid 
+        };
+
+        await axios.post(ipconfig['backend_ip'] + "/api/service/delete", data, {
+          headers: { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') }
+        });
+        
+        this.notify("Послугу успішно видалено! 👋");
+        // Перенаправлення користувача на іншу сторінку після успішного видалення (наприклад, на список послуг)
+        this.$router.push({ path: '/service/available' }); // Замініть на потрібний шлях
+
+      } catch (error) {
+        console.error("Помилка видалення послуги:", error);
+        this.notifyError("Помилка при видаленні послуги.");
+        if (error.response && error.response.status === 401) {
+          this.$router.push({ path: '/sign-in' });
+        }
+      }
+    },
+
+
     // ---------------------- Редагування основних даних (PUT) ----------------------
 
     button_edit_click() {
@@ -1354,6 +1417,42 @@ li {
     flex-direction: column;
     gap: 8px;
   }
+}
+
+/* ------------------------------------------------------------- */
+/* СТИЛІ ДЛЯ ЧЕРВОНОЇ КНОПКИ ВИДАЛЕННЯ (НОВИЙ КЛАС) */
+/* ------------------------------------------------------------- */
+.delete-lusa-10 {
+  border: 1px solid #ff5733; /* Червоний колір рамки */
+  box-shadow: 0 0 5px #ff5733, 0 0 5px #ff5733 inset; /* Червона тінь */
+  color: #ff5733; /* Червоний колір тексту */
+  background: #000;
+  z-index: 2;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.delete-lusa-10:after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: #ff5733; /* Червоний фон при наведенні */
+  transition: all 0.3s ease;
+  -webkit-transform: scale(0);
+  transform: scale(0);
+}
+
+.delete-lusa-10:hover:not([disabled]) {
+  color: #fff; /* Білий текст при наведенні */
+}
+
+.delete-lusa-10:hover:not([disabled]):after {
+  -webkit-transform: scale(1);
+  transform: scale(1);
 }
 
 input[type="time"]{

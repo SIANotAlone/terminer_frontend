@@ -1,6 +1,6 @@
 <template>
   <Menu></Menu>
-  <h1 style="display: flex; justify-content: center; color: #fff;">Статистика</h1>
+  <h1 style="margin-top: 70px; display: flex; justify-content: center; color: #fff;">Статистика</h1>
 
   <label for="availableYears" class="metainfo centered-label">Оберіть рік:</label>
   <select name="availableYears" id="availableYears" v-model="selected_year" @change="update_all"

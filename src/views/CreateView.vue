@@ -1,6 +1,6 @@
 <template>
   <Menu></Menu>
-  <div class="create_page">
+  <div class="create_page" style="margin-top: 60px;">
 
     <h1 class="title">Створити послугу</h1>
 

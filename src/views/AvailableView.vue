@@ -1,5 +1,5 @@
 <template>
-  <div class="available-page">
+  <div class="available-page" style="margin-top: 35px;">
     <Menu />
     <div class="container">
       <h2>Доступні мені послуги</h2>

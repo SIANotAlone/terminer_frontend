@@ -1,6 +1,6 @@
 <template>
   <Menu />
-  <div class="termins-page">
+  <div class="termins-page" style="margin-top: 35px;">
     <div class="container">
       <h2>Терміни, які потребують вашої уваги</h2>
       <div class="tabs">
