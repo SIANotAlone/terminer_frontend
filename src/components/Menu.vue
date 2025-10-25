@@ -2,14 +2,12 @@
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
-// Логіка для відкриття/закриття меню на мобільних пристроях
+// Стан меню та підменю
 const isMenuOpen = ref(false);
-// Логіка для відкриття/закриття підменю "Послуги"
 const isServicesDropdownOpen = ref(false);
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
-  // Закриваємо підменю, якщо закриваємо основне меню
   if (!isMenuOpen.value) {
     isServicesDropdownOpen.value = false;
   }
@@ -22,8 +20,6 @@ function toggleServicesDropdown() {
 
 <template>
   <nav>
-    <button @click="toggleMenu" class="hamburger" aria-label="Toggle menu">
-      &#9776; </button>
     <ul :class="{ 'open': isMenuOpen }" class="menu-list">
       <li><RouterLink to="/" @click="isMenuOpen = false">Головна</RouterLink></li>
       
@@ -41,16 +37,20 @@ function toggleServicesDropdown() {
       </li>
       
       <li><RouterLink to="/about" @click="isMenuOpen = false">Про нас</RouterLink></li>
-      </ul>
+    </ul>
+
+    <!-- 🟢 Гамбургер-кнопка переміщена праворуч -->
+    <button @click="toggleMenu" class="hamburger" aria-label="Toggle menu">
+      &#9776;
+    </button>
   </nav>
 </template>
 
 <script>
 export default {
-  // Логіка авторизації, перенесена для коректного виконання
   data() {
     return {
-      authorized: false // Початкове значення
+      authorized: false
     }
   },
   mounted() {
@@ -59,26 +59,25 @@ export default {
   methods: {
     checkAuthorization() {
       const token = localStorage.getItem("jwt_token");
-      this.authorized = (token !== null && token !== undefined && token !== "");
+      this.authorized = !!token;
     }
   }
 }
 </script>
 
 <style scoped>
-/* Стилі для прозорої навігаційної панелі */
+/* Основні стилі */
 nav {
   display: flex;
-  justify-content: right;
+  justify-content: flex-end; /* 🔹 усе вирівняно праворуч */
   align-items: center;
   padding: 10px 20px;
-  /* Прозорий фон з легким затемненням */
   background-color: rgba(0, 0, 0, 0.5); 
-  position: fixed; /* Закріплюємо меню вгорі */
+  position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1000; /* Гарантуємо, що меню буде над іншими елементами */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Легка тінь */
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 ul.menu-list {
@@ -91,12 +90,12 @@ ul.menu-list {
 
 ul.menu-list > li {
   padding-left: 20px;
-  position: relative; /* Важливо для позиціонування випадаючого меню */
+  position: relative;
 }
 
 a {
   text-decoration: none;
-  color: #fff; /* Білий текст */
+  color: #fff;
   padding: 8px 12px;
   display: block;
   transition: color 0.3s ease;
@@ -105,29 +104,26 @@ a {
 a:hover,
 .dropdown-toggle:hover {
   color: #ff9aff; 
-  text-decoration: none;
 }
 
-/* Стилі для випадаючого меню (Dropdown) */
+/* Випадаюче меню */
 .dropdown-toggle {
   cursor: pointer;
   display: flex;
   align-items: center;
-  /* Для коректного центрування в мобільному режимі */
-  justify-content: center; 
-  width: 100%; /* Гарантуємо, що посилання займе всю ширину li */
+  justify-content: center;
+  width: 100%;
 }
 
 .dropdown-menu {
   display: none;
   position: absolute;
-  /* Напівпрозорий фон підменю */
   background-color: rgba(30, 30, 30, 0.9); 
   list-style: none;
   padding: 10px 0;
   margin: 0;
   min-width: 180px;
-  top: 100%; /* Розміщення під основним пунктом */
+  top: 100%;
   left: 0;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
@@ -135,7 +131,7 @@ a:hover,
 }
 
 .dropdown.open .dropdown-menu {
-  display: block; /* Показати підменю, коли відкрито */
+  display: block;
 }
 
 .dropdown-menu li {
@@ -149,7 +145,7 @@ a:hover,
 }
 
 .dropdown-menu a:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Легкий ефект при наведенні */
+  background-color: rgba(255, 255, 255, 0.1);
   color: #ff9aff;
 }
 
@@ -160,10 +156,10 @@ a:hover,
 }
 
 .dropdown.open .arrow {
-  transform: rotate(180deg); /* Поворот стрілки, коли меню відкрито */
+  transform: rotate(180deg);
 }
 
-/* Гамбургер кнопка */
+/* Гамбургер */
 .hamburger {
   display: none;
   font-size: 30px;
@@ -176,52 +172,49 @@ a:hover,
 /* Мобільне меню */
 @media (max-width: 768px) {
   nav {
-    justify-content: space-between;
+    justify-content: flex-end; /* 🔹 гамбургер праворуч */
   }
-  
+
   .hamburger {
     display: block;
-    order: 2; /* Розміщуємо гамбургер праворуч */
+    order: 2; /* кнопка справа */
+    margin-left: 10px;
   }
 
   ul.menu-list {
-    display: none; /* Приховуємо меню за замовчуванням */
+    display: none;
     flex-direction: column;
     width: 100%;
     position: absolute;
-    top: 60px; /* Відступ від nav */
-    left: 0;
-    /* Напівпрозорий фон для мобільного меню */
-    background-color: rgba(0, 0, 0, 0.9); 
+    top: 60px;
+    left: 0; /* 🔹 меню відкривається, як раніше — зліва */
+    background-color: rgba(0, 0, 0, 0.9);
     padding: 10px 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   }
 
   ul.menu-list.open {
-    display: flex; /* Показуємо меню, коли воно відкрите */
+    display: flex;
   }
 
   ul.menu-list > li {
-    padding: 0;
+    text-align: center;
     width: 100%;
-    /* 👇 КЛЮЧОВЕ ВИПРАВЛЕННЯ: Центруємо текст (посилання) всередині li */
-    text-align: center; 
   }
-  
+
   .dropdown {
     width: 100%;
   }
 
-  /* Для забезпечення центрування елементів в `dropdown-toggle` */
   .dropdown-toggle {
     display: flex;
     justify-content: center;
   }
 
   .dropdown-menu {
-    position: static; /* Підменю відображається прямо під пунктом */
+    position: static;
     width: 100%;
-    background-color: rgba(30, 30, 30, 0.7); /* Більш прозорий фон для підменю */
+    background-color: rgba(30, 30, 30, 0.7);
     border-radius: 0;
     box-shadow: none;
   }
