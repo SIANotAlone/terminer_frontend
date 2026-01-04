@@ -346,6 +346,7 @@ export default {
           "description": this.description,
           "date_end": date.toISOString(),
           "service_type": this.selected_service_type,
+          "massage_type": this.selected_massage_type
         },
         "available_time": this.selected_time
       }

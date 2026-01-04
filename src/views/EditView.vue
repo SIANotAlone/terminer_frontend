@@ -689,36 +689,50 @@ export default {
     },
 
     async button_submit_edit() {
-      this.showModal = false;
+  // 1. Закрываем модальное окно подтверждения
+  this.showModal = false;
 
-      const date = new Date(this.date_end);
-      const date_end_iso = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString(); 
+  // 2. Формируем дату. 
+  // Вместо new Date().toISOString(), который сдвигает время по UTC,
+  // мы берем строку "YYYY-MM-DD" из v-model и добавляем время вручную.
+  // Это гарантирует, что дата не "откатится" на день назад из-за часового пояса.
+  const date_end_iso = this.date_end ? `${this.date_end}T00:00:00.000Z` : null;
 
-      let massage_type_id = null;
-      if (this.selected_service_type === 1) {
-        massage_type_id = this.selected_massage_type;
+  // 3. Определяем тип массажа, если выбран тип услуги "Массаж" (id: 1)
+  let massage_type_id = null;
+  if (this.selected_service_type === 1) {
+    massage_type_id = this.selected_massage_type;
+  }
+
+  // 4. Формируем объект данных для отправки
+  const data = {
+    "id": this.service_uuid,
+    "name": this.name,
+    "description": this.description,
+    "date_end": date_end_iso,
+    "service_type_id": this.selected_service_type,
+    "available_for_all": this.for_all,
+    "massage_type_id": massage_type_id
+  };
+
+  // 5. Отправляем запрос на сервер
+  try {
+    await axios.put(ipconfig['backend_ip'] + "/api/service/edit", data, {
+      headers: { 
+        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}` 
       }
-
-      const data = {
-        "id": this.service_uuid,
-        "name": this.name,
-        "description": this.description,
-        "date_end": date_end_iso,
-        "service_type_id": this.selected_service_type,
-        "available_for_all": this.for_all,
-        "massage_type_id": massage_type_id
-      };
-
-      try {
-        await axios.put(ipconfig['backend_ip'] + "/api/service/edit", data, {
-          headers: { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') }
-        });
-        this.notify("Основна інформація послуги успішно оновлена! 🎉");
-      } catch (error) {
-        console.error("Помилка оновлення послуги:", error);
-        this.notifyError("Помилка при оновленні основної інформації послуги.");
-      }
+    });
+    
+    this.notify("Основна інформація послуги успішно оновлена! 🎉");
+  } catch (error) {
+    console.error("Помилка оновлення послуги:", error);
+    this.notifyError("Помилка при оновленні основної інформації послуги.");
+    
+    if (error.response && error.response.status === 401) {
+      this.$router.push({ path: '/sign-in' });
     }
+  }
+}
   },
 
   async created() {

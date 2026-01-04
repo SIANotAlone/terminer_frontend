@@ -2,73 +2,72 @@
   <div class="offering-wrapper">
     <h3>{{ offering.name }}</h3>
     <div class="offering-details">
-
       <p><strong class="description">Детальніше: </strong>{{ offering.description }}</p>
       <p class="meta"><strong class="description">Тип послуги: </strong>{{ offering.service_type }}</p>
-      <p v-if="offering.massage_type !== ''" class="meta"><strong class="description">Тип масажу: </strong>{{ offering.massage_type }}</p>
-      <p class="meta"><strong class="description">Дата закінчення: </strong>{{ formatDate(offering.date_end) }}</p>
-      <p class="meta"><strong class="description">Виконавець: </strong>{{ offering.first_name }} {{ offering.last_name }}</p>
+      <p v-if="offering.massage_type !== ''" class="meta">
+        <strong class="description">Тип масажу: </strong>{{ offering.massage_type }}
+      </p>
+      <p class="meta">
+        <strong class="description">Дата закінчення: </strong>{{ formatDate(offering.date_end) }}
+      </p>
+      <p class="meta">
+        <strong class="description">Виконавець: </strong>{{ offering.first_name }} {{ offering.last_name }}
+      </p>
 
       <div class="button-wrapper">
         <button class="btn-record" @click="show_dialog">Записатись</button>
       </div>
-
     </div>
 
-    <div v-if="showModal" class="modal">
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <span class="close" @click="showModal = false">&times;</span>
-        <h2>Оберіть доступний час в діапазоні</h2>
-
-        <section class="radio-section">
-          <div class="radio-list">
-            <div v-for="item in available_time" :key="item.id" class="radio-item">
-              <input type="radio" :id="item.id" :value="item.id" :name="'time_group'" @change="selected_time = item.id" />
-              <label :for="item.id">З {{ extractTime(item.time_start) }} по {{ extractTime(item.time_end) }}</label>
-            </div>
-          </div>
-        </section>
-
-        <div class="modal-buttons">
-          <button @click="make_record" class="btn-record">Записатись</button>
-          <button @click="showModal = false" class="btn-cancel">Назад</button>
+        <span class="close-icon" @click="closeModal">&times;</span>
+        
+        <div class="modal-header">
+          <h2>Оберіть доступний час</h2>
         </div>
 
+        <div class="modal-body">
+          <section class="radio-list">
+            <div v-for="item in available_time" :key="item.id" class="radio-item">
+              <input 
+                type="radio" 
+                :id="'time-' + item.id" 
+                :value="item.id" 
+                name="time_group" 
+                v-model="selected_time" 
+              />
+              <label :for="'time-' + item.id">
+                З {{ extractTime(item.time_start) }} по {{ extractTime(item.time_end) }}
+              </label>
+            </div>
+            <p v-if="available_time.length === 0" class="no-time">Немає доступного часу</p>
+          </section>
+        </div>
+
+        <div class="modal-footer">
+          <button 
+            @click="make_record" 
+            class="btn-record" 
+            :disabled="!selected_time"
+          >
+            Обрати
+          </button>
+          <button @click="closeModal" class="btn-cancel">Назад</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-
 import { ref } from 'vue';
 import axios from 'axios';
-import ipconfig from "@/server_configs/config.js"
+import ipconfig from "@/server_configs/config.js";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
-
 export default {
-  setup() {
-
-    const showModal = ref(false);
-
-
-    const theme = 'dark';
-    const notify = (message) => {
-      toast.success(message, {
-        autoClose: 2000,
-        theme,
-      }); // ToastOptions
-
-    }
-    return { showModal, notify }
-  },
-  components: {
-
-
-  },
   name: "MyComponent",
   props: {
     offering: {
@@ -76,74 +75,81 @@ export default {
       required: true,
     },
   },
-
-
+  setup() {
+    const showModal = ref(false);
+    const notify = (message) => {
+      toast.success(message, {
+        autoClose: 2000,
+        theme: 'dark',
+      });
+    };
+    return { showModal, notify };
+  },
   data() {
     return {
       available_time: [],
       selected_time: null,
       server_ip: ipconfig['backend_ip']
-    }
+    };
   },
-  emits: ["delete-offering"], // Добавляем событие для удаления
+  emits: ["delete-offering"],
   methods: {
     formatDate(dateString) {
+      if (!dateString) return "";
       const date = new Date(dateString);
-      return date.toLocaleDateString('uk-UA'); // Преобразует дату в формат "17.11.2024"
+      return date.toLocaleDateString('uk-UA');
     },
     extractTime(dateString) {
+      if (!dateString) return "00:00";
       const date = new Date(dateString);
       const hours = date.getUTCHours().toString().padStart(2, '0');
       const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-      const seconds = date.getUTCSeconds().toString().padStart(2, '0');
-
       return `${hours}:${minutes}`;
     },
-    show_dialog(id) {
-
-      this.showModal = true
-      this.get_available_time(id)
+    show_dialog() {
+      this.showModal = true;
+      this.get_available_time();
     },
-
-    get_available_time(id) {
-
-      axios.post(this.server_ip + "/api/service/availabletime", {
-
+    closeModal() {
+      this.showModal = false;
+      this.selected_time = null;
+    },
+    get_available_time() {
+      axios.post(`${this.server_ip}/api/service/availabletime`, {
         "service_id": this.offering.id
       }, {
-
         headers: {
-          'Authorization': `Bearer ` + localStorage.getItem('jwt_token'),
+          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
           'Content-Type': 'application/json'
         }
       }).then(response => {
-        this.available_time = response.data
+        this.available_time = response.data;
       }).catch(error => {
-        console.error(error);
+        console.error("Error fetching time:", error);
       });
     },
     make_record() {
-      let service_id = this.offering.id
-      let selected_time = this.selected_time
-      // console.log(service_id, selected_time)
-      axios.post(this.server_ip + "/api/record/create", {
-        "service_id": service_id,
-        "available_time_id": selected_time
-      }, { 'headers': { 'Authorization': `Bearer ` + localStorage.getItem('jwt_token') } }).then(response => {
-        console.log(response.data)
-        console.log("success")
-        this.$emit("delete-offering", this.offering.id); // Відправляємо подію в батьківський компонент
-        this.showModal = false
-        this.notify("Записано")
+      if (!this.selected_time) return;
 
-      })
-
+      axios.post(`${this.server_ip}/api/record/create`, {
+        "service_id": this.offering.id,
+        "available_time_id": this.selected_time
+      }, { 
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt_token')}` } 
+      }).then(() => {
+        this.$emit("delete-offering", this.offering.id);
+        this.closeModal();
+        this.notify("Записано успішно!");
+      }).catch(err => {
+        console.error("Booking error:", err);
+      });
     }
-
   },
 };
 </script>
+
 <style scoped>
+/* Картка послуги */
 .offering-wrapper {
   background: #1e1e2f;
   border-radius: 15px;
@@ -154,38 +160,17 @@ export default {
   padding: 20px 30px;
   color: #eee;
   font-family: 'Lato', sans-serif;
-  transition: transform 0.3s ease;
 }
-
-/* .offering-wrapper:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(255, 154, 255, 0.4);
-} */
 
 h3 {
   text-align: center;
   font-size: 22px;
-  font-weight: 700;
+  color: #ff9aff;
   margin-bottom: 15px;
-  color: #ff9aff;
 }
 
-.offering-details p {
-  font-size: 15px;
-  margin: 8px 0;
-  color: #ccc;
-}
-
-.description {
-  color: #ff9aff;
-  font-weight: 600;
-}
-
-.meta {
-  color: #bbb;
-  margin-left: 5px;
-  font-size: 14px;
-}
+.description { color: #ff9aff; font-weight: 600; }
+.meta { color: #bbb; font-size: 14px; margin: 8px 0; }
 
 .button-wrapper {
   display: flex;
@@ -193,6 +178,7 @@ h3 {
   margin-top: 20px;
 }
 
+/* Кнопки */
 .btn-record {
   background: linear-gradient(135deg, #ff6aff, #ff00ff);
   border: none;
@@ -200,92 +186,92 @@ h3 {
   padding: 12px 28px;
   border-radius: 30px;
   font-weight: 600;
-  font-size: 16px;
   cursor: pointer;
-  box-shadow: 0 5px 10px rgba(255, 105, 180, 0.6);
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
 }
 
-.btn-record:hover {
-  background: linear-gradient(135deg, #ff00ff, #ff6aff);
-  box-shadow: 0 8px 20px rgba(255, 0, 255, 0.8);
+.btn-record:hover:not(:disabled) {
   transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 0, 255, 0.6);
 }
 
-.btn-record:focus {
-  outline: none;
-  box-shadow: 0 0 8px 3px rgba(255, 154, 255, 0.7);
+.btn-record:disabled {
+  background: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* Модалка */
+.btn-cancel {
+  background: transparent;
+  border: 2px solid #ff9aff;
+  color: #ff9aff;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-.modal {
+/* Модальне вікно (Fixed) */
+.modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(20, 20, 30, 0.85);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 20, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 10000;
+  padding: 20px;
 }
 
 .modal-content {
   background: #2c2c44;
-  border-radius: 12px;
-  padding: 25px 30px;
-  max-width: 480px;
-  width: 90%;
-  color: #ddd;
-  box-shadow: 0 8px 30px rgba(255, 154, 255, 0.4);
+  border-radius: 15px;
+  width: 100%;
+  max-width: 450px;
+  max-height: 85vh; /* Обмеження висоти */
+  display: flex;
+  flex-direction: column; /* Важливо для внутрішнього скролу */
   position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 154, 255, 0.2);
+}
+
+.modal-header {
+  padding: 20px;
+  flex-shrink: 0;
   text-align: center;
 }
 
-.close {
-  position: absolute;
-  right: 15px;
-  top: 12px;
-  font-size: 28px;
-  font-weight: 700;
-  color: #ff9aff;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close:hover {
-  color: #ff5aff;
-}
-
-h2 {
-  margin-bottom: 20px;
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
   color: #ffb0ff;
-  font-weight: 700;
 }
 
-/* Радио кнопки */
+.modal-body {
+  padding: 0 25px;
+  overflow-y: auto; /* Вмикаємо прокрутку тільки тут */
+  flex-grow: 1;
+}
 
-.radio-section {
+.modal-footer {
+  padding: 20px;
   display: flex;
   justify-content: center;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 154, 255, 0.1);
 }
 
+/* Радіо кнопки */
 .radio-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.radio-item {
-  margin: 8px 0;
-  width: 100%;
-  max-width: 320px;
+  gap: 10px;
+  padding-bottom: 10px;
 }
 
 .radio-item input[type="radio"] {
@@ -294,83 +280,54 @@ h2 {
 
 .radio-item label {
   display: block;
-  padding: 15px 40px;
-  background: #111122;
-  border: 2px solid #ff9aff;
-  border-radius: 12px;
+  padding: 14px;
+  background: #1a1a2e;
+  border: 2px solid #3f3f5f;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  color: #ddd;
-  transition: all 0.3s ease;
-  user-select: none;
   text-align: center;
-  position: relative;
+  transition: all 0.2s ease;
+  color: #ccc;
 }
-/* 
-.radio-item label:hover {
-  background: #ff9aff;
-  color: #1a001a;
-  border-color: #ff6aff;
-} */
 
 .radio-item input[type="radio"]:checked + label {
-  background: #ff9aff;
-  color: #1a001a;
-  border-color: #ff6aff;
-  box-shadow: 0 0 12px 2px #ff6aff;
+  background: rgba(255, 154, 255, 0.2);
+  border-color: #ff9aff;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 154, 255, 0.3);
 }
 
-/* Кнопки в модалке */
-
-.modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.btn-cancel {
-  background: transparent;
-  border: 2px solid #ff9aff;
-  border-radius: 30px;
-  padding: 12px 28px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
   color: #ff9aff;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  z-index: 1;
 }
 
-.btn-cancel:hover {
-  background-color: #ff9aff;
-  color: #1a001a;
+.no-time {
+  text-align: center;
+  padding: 20px;
+  color: #888;
 }
 
-/* Адаптивность */
+/* Скроллбар */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #ff9aff;
+  border-radius: 10px;
+}
 
 @media (max-width: 480px) {
-  .offering-wrapper {
-    margin: 20px 10px;
-    padding: 15px 20px;
+  .modal-footer {
+    flex-direction: column;
   }
-
-  h3 {
-    font-size: 20px;
-  }
-
-  .offering-details p {
-    font-size: 14px;
-  }
-
   .btn-record, .btn-cancel {
     width: 100%;
-    padding: 12px 0;
-  }
-
-  .radio-item label {
-    font-size: 14px;
-    padding: 12px 20px;
   }
 }
 </style>
