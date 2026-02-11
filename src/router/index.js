@@ -5,6 +5,10 @@ import PerformerTerminView from '../views/PerformerTerminView.vue'
 import PromocodeView from '../views/PromocodeView.vue'
 import MyActualComments from '../views/MyAllCommentsView.vue'
 import StatisticView from '@/views/StatisticView.vue'
+import BudgetView from '@/views/budget/BudgetView.vue'
+import CategoryView from '@/views/budget/CategoryView.vue'
+import GoalsView from '@/views/budget/GoalsView.vue'
+import TransactionsView from '@/views/budget/TransactionsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,7 +72,27 @@ const router = createRouter({
       path: '/statistics',
       name: 'statistics',
       component: StatisticView,
-    }
+    },
+    {
+      path: '/budgets',
+      name: 'budget',
+      component: BudgetView,
+    },
+     {
+      path: '/categories',
+      name: 'category',
+      component: CategoryView,
+    },
+    {
+      path: '/goals',
+      name: 'goal',
+      component: GoalsView,
+    },
+        {
+      path: '/transactions/:budgetId',
+      name: 'transaction',
+      component: TransactionsView,
+    },
     
   ],
 })

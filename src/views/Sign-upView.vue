@@ -1,269 +1,234 @@
-<script>
-    import axios from 'axios'
-    import server_ip from "@/server_configs/config.js"
+<template>
+  <div class="page-wrapper">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1 class="title">Реєстрація</h1>
 
-    export default {
-  setup() {
-    
-    return {}
-  },
-  data(){
-    return{
-      
+        <form @submit.prevent="registration" class="form-content">
+          <div class="form__group field">
+            <input type="email" class="form__field" placeholder="E-Mail" v-model="regData.email" required />
+            <label class="form__label">E-Mail</label>
+          </div>
+
+          <div class="row">
+            <div class="form__group field">
+              <input type="text" class="form__field" placeholder="Імʼя" v-model="regData.first_name" required />
+              <label class="form__label">Імʼя</label>
+            </div>
+            <div class="form__group field">
+              <input type="text" class="form__field" placeholder="Прізвище" v-model="regData.last_name" required />
+              <label class="form__label">Прізвище</label>
+            </div>
+          </div>
+
+          <div class="row controls">
+            <div class="control-item">
+              <label class="input-hint">Країна</label>
+              <select v-model="regData.country" class="custom-select">
+                <option value="Ukraine">Україна</option>
+                <option value="Deutschland">Німеччина</option>
+                <option value="Poland">Польща</option>
+              </select>
+            </div>
+            <div class="control-item">
+              <label class="input-hint">Дата народження</label>
+              <input type="date" class="custom-date" v-model="regData.date_of_birth" required />
+            </div>
+          </div>
+
+          <div class="form__group field">
+            <input type="password" class="form__field" placeholder="Пароль" v-model="regData.password" required />
+            <label class="form__label">Пароль</label>
+          </div>
+          
+          <div class="form__group field">
+            <input type="password" class="form__field" placeholder="Повторіть пароль" v-model="confirmPassword" required />
+            <label class="form__label">Підтвердження</label>
+          </div>
+
+          <div class="btn_container">
+            <button type="submit" class="submit-btn" :disabled="!isPasswordMatch">
+              <span>Створити аккаунт</span>
+            </button>
+            <p v-if="regData.password && !isPasswordMatch" class="error-text">Паролі не співпадають</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import server_ip from "@/server_configs/config.js"
+
+export default {
+  data() {
+    return {
+      regData: {
+        email: '',
+        first_name: '',
+        last_name: '',
+        country: 'Ukraine',
+        password: '',
+        date_of_birth: ''
+      },
+      confirmPassword: ''
     }
-    
+  },
+  computed: {
+    isPasswordMatch() {
+      return this.regData.password === this.confirmPassword;
+    }
   },
   methods: {
-        registration(){
-            let data = {
-                "email" : document.getElementById('email').value,
-                "first_name" : document.getElementById('first_name').value,
-                "last_name" : document.getElementById('last_name').value,
-                "country" : document.getElementById('country').value,
-                "password" : document.getElementById('password').value,
-                "date_of_birth" : document.getElementById('date').value
-            }
-            axios.post(server_ip.backend_ip + "/auth/sign-up",data).then(response => {
-                console.log(response.data)
-                console.log("success")
-            })
-        }
+    async registration() {
+      if (!this.isPasswordMatch) return;
+      
+      try {
+        const response = await axios.post(`${server_ip.backend_ip}/auth/sign-up`, this.regData);
+        this.$router.push('/login');
+      } catch (error) {
+        alert("Помилка при реєстрації");
+      }
+    }
   }
 }
 </script>
-<template>
-<div>
-    
-    <h1 align="center">Реєстрація</h1>
-    <div class="editors">
-    <div class="form__group field">
-      <input type="input" class="form__field" placeholder="E-Mail" name="name" id='email' required value=""/>
-      <label for="name" class="form__label">E-Mail</label>
-    </div>
-    <div class="form__group field">
-      <input type="input" class="form__field" placeholder="First Name" name="name" id='first_name' required value=""/>
-      <label for="name" class="form__label">Імʼя</label>
-    </div>
-    <div class="form__group field">
-      <input type="input" class="form__field" placeholder="Last Name" name="name" id='last_name' required value=""/>
-      <label for="name" class="form__label">Прізвище</label>
-    </div>
-    <label for="">Країна:</label>
-    <select name="" id="country" class="country">
-        <option value="Deutschland">Німеччина</option>
-        <option value="Ukraine">Україна</option>
-        <option value="Poland">Польща</option>
-        <option value="United Kingdome">Великобританія</option>
-        <option value="Japan">Японія</option>
-        <option value="Czech Republic">Чехія</option>
-        <option value="Austria">Австрія</option>
-        <option value="France">Франція</option>
-        <option value="Netherlands">Нідерланди</option>
-        <option value="Belgium">Бельгія</option>
-        <option value="Italy">Італія</option>
-    </select>
-    <div>
-        <input type="date" class="date" id="date">
-    </div>
-    <div class="form__group field">
-      <input type="password" class="form__field" placeholder="Пароль" name="name" id='password' required />
-      <label for="name" class="form__label">Пароль</label>
-    </div>
-    <div class="container">
-        <button  class="knopka_neion lusa-10" @click="registration">Зареєструватись</button> 
-    </div>
-    
 
-  </div>
-</div>
-</template>
-
-<style scoped>  
-.container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    margin-right: 50%;
+<style scoped>
+.page-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #24243e, #0f0c29);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
- .form__group {
-  position: relative;
-  padding: 15px 0 0;
-  margin-top: 10px;
-  width: 50%;
 
+.auth-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.title {
+  color: white;
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+/* Фикс позиционирования лейблов */
+.form__group {
+  position: relative;
+  width: 100%;
 }
 
 .form__field {
-  font-family: inherit;
   width: 100%;
   border: 0;
-  border-bottom: 2px solid #9b9b9b;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
   outline: 0;
-  font-size: 1.3rem;
+  font-size: 16px;
   color: #fff;
-  padding: 7px 0;
+  padding: 8px 0;
   background: transparent;
-  text-align: center;
-  transition: border-color 0.2s;
-
-  &::placeholder {
-    color: transparent;
-  }
-
-  &:placeholder-shown~.form__label {
-    font-size: 1.3rem;
-    cursor: text;
-    top: 20px;
-
-  }
+  transition: 0.3s;
 }
+
+.form__field::placeholder { color: transparent; }
 
 .form__label {
   position: absolute;
-  top: 0;
-  display: block;
-  transition: 0.2s;
-  font-size: 1rem;
-  color: #9b9b9b;
+  top: 8px;
+  left: 0; /* Важно: прижимаем к левому краю внутри контейнера */
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: 0.3s;
+  pointer-events: none;
+}
 
-
+.form__field:focus ~ .form__label,
+.form__field:not(:placeholder-shown) ~ .form__label {
+  top: -14px;
+  font-size: 12px;
+  color: #c084fc; /* Светло-пурпурный */
+  font-weight: 600;
 }
 
 .form__field:focus {
-  ~.form__label {
-    position: absolute;
-    top: 0;
-    display: block;
-    transition: 0.2s;
-    font-size: 1rem;
-    color: #5dbdff;
-    font-weight: 700;
-
-
-  }
-  
-
-  padding-bottom: 6px;
-  font-weight: 700;
-  border-width: 3px;
-  border-image: linear-gradient(to right, #ff24ed, #557ff7);
-  border-image-slice: 1;
+  border-bottom: 2px solid #5dbdff;
 }
 
-/* reset input */
-.form__field {
-
-  &:required,
-  &:invalid {
-    box-shadow: none;
-  }
+/* Селекты и даты */
+.input-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+  display: block;
 }
 
-/* demo */
-body {
-  font-family: 'Poppins', sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-size: 1.5rem;
-  background-color: #222222;
-}
-
-.editors {
-  margin-left: 30%;
-
-}
-
-
-/* 10 */
-.lusa-10 {
-  border: 1px solid #ff9aff;
-  box-shadow: 0 0 5px #ff9aff, 0 0 5px #ff9aff inset;
-  color: #ff9aff;
-  background: #000;
-  z-index: 2;
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-.lusa-10:after {
-  position: absolute;
-  content: " ";
-  top: 0;
-  left: 0;
-  z-index: -1;
+.custom-select, .custom-date {
   width: 100%;
-  height: 100%;
-  background: #ff9aff;
-  transition: all 0.3s ease;
-  -webkit-transform: scale(0);
-  transform: scale(0);
-}
-.lusa-10:hover {
-  color: #fff;
-}
-.lusa-10:hover:after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-}
-
-
-.osnovanua {
-  width: 90%;
-  margin: 40px auto;
-  text-align: center;
-}
-button {
-  margin: 20px;
-  display: flex;
-      justify-content: center;
-      align-items: center;
-}
-.knopka_neion {
-  color: #fff;
-  width: 250px;
-  height: 45px;
-
-  font-family: 'Lato', sans-serif;
-  font-weight: 500;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-
-
-}
-
-select {
-  /* Reset */
-  appearance: none;
-  border: 0;
-  outline: 0;
-  font: inherit;
-  /* Personalize */
-  width: 20rem;
-  padding: 1rem 4rem 1rem 1rem;
-  background: var(--arrow-icon) no-repeat right 0.8em center / 1.4em,
-    linear-gradient(to left, var(--arrow-bg) 3em, var(--select-bg) 3em);
+  height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   color: white;
-  border-radius: 0.25em;
-  box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  /* Remove IE arrow */
-  &::-ms-expand {
-    display: none;
-  }
-  /* Remove focus outline */
-  &:focus {
-    outline: none;
-  }
-  /* <option> colors */
-  option {
-    color: inherit;
-    background-color: var(--option-bg);
-  }
+  padding: 0 10px;
 }
- 
+
+/* Кнопка */
+.submit-btn {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(90deg, #d8b4fe, #60a5fa);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-text {
+  color: #fb7185;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .row { flex-direction: column; }
+}
 </style>

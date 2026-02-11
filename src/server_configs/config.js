@@ -1,6 +1,6 @@
 
 const configs = {
-    "backend_ip": "http://127.0.0.1:9999"
+    "backend_ip": "http://192.168.2.105:9999"
 }
 
 
