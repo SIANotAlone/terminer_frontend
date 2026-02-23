@@ -5,35 +5,35 @@
     <main>
       <header>
         <div>
-          <small style="color: var(--text-secondary)">Финансы</small>
-          <h1>Транзакции бюджета</h1>
+          <!-- <small style="color: var(--text-secondary)">Фінанси</small> -->
+          <h1>Транзакції бюджета</h1>
         </div>
-        <div class="user-pill">
-          <span>Пользователь</span>
+        <!-- <div class="user-pill">
+          <span>Користувач</span>
           <div class="avatar-placeholder">
             <i class="fas fa-user"></i>
           </div>
-        </div>
+        </div> -->
       </header>
 
       <div class="stats-grid">
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Текущий баланс (из списка)</small>
+    <small style="color: var(--text-secondary)">Поточний баланс (зі списку)</small>
     <h2 style="color: var(--text-main)">{{ formatCurrency(stats.balance) }}</h2>
     <span :class="stats.balance >= 0 ? 'trend-up' : 'trend-down'">
-       {{ stats.balance >= 0 ? 'Положительный' : 'Отрицательный' }}
+       {{ stats.balance >= 0 ? 'Додатний' : 'Від\'ємний' }}
     </span>
   </div>
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Доходы</small>
+    <small style="color: var(--text-secondary)">Прибутки</small>
     <h2 style="color: var(--success)">{{ formatCurrency(stats.income) }}</h2>
   </div>
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Расходы</small>
+    <small style="color: var(--text-secondary)">Витрати</small>
     <h2 style="color: var(--danger)">{{ formatCurrency(stats.expense) }}</h2>
   </div>
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Всего операций</small>
+    <small style="color: var(--text-secondary)">Всього операцій</small>
     <h2 style="color: var(--text-main)">{{ transactions.length }}</h2>
   </div>
 </div>
@@ -41,47 +41,52 @@
      <div class="toolbar">
   <div class="toolbar-group">
     <button class="btn btn-primary" @click="openModal('create')">
-      <i class="fas fa-plus"></i> <span>Добавить</span>
+      <i class="fas fa-plus"></i> <span>Додати</span>
     </button>
     
     <select v-model="filterType" class="select-filter">
-      <option value="ALL">Все операции</option>
-      <option value="INCOME">Доходы</option>
-      <option value="EXPENSE">Расходы</option>
+      <option value="ALL">Всі операції</option>
+      <option value="INCOME">Прибуток</option>
+      <option value="EXPENSE">Витрата</option>
     </select>
+    <select v-model="filterIntent" class="select-filter">
+  <option value="ALL">Всі</option>
+  <option value="ACTUAL">Факт</option>
+  <option value="PLANNED">План</option>
+</select>
   </div>
 
   <div class="toolbar-group">
     <div class="search-wrapper">
        <i class="fas fa-search search-icon"></i>
-       <input type="text" v-model="searchQuery" placeholder="Поиск..." class="search-input">
+       <input type="text" v-model="searchQuery" placeholder="Пошук..." class="search-input">
     </div>
   </div>
   
   <div class="toolbar-group">
     <button class="btn btn-outline" :disabled="!selectedTransaction" @click="openModal('edit')">
-      <i class="fas fa-pen"></i> <span>Изменить</span>
+      <i class="fas fa-pen"></i> <span>Змінити</span>
     </button>
     <button class="btn btn-danger" :disabled="!selectedTransaction" @click="openModal('delete')">
-      <i class="fas fa-trash"></i> <span>Удалить</span>
+      <i class="fas fa-trash"></i> <span>Видалити</span>
     </button>
   </div>
 </div>
 
       <section class="content-section">
-        <h3 style="margin: 0 0 15px 0">История операций</h3>
+        <h3 style="margin: 0 0 15px 0; color: #000;">Історія операцій</h3>
         
         <div class="table-responsive">
-          <div v-if="loading" class="loading-state">Загрузка данных...</div>
+          <div v-if="loading" class="loading-state">Завантаження даних...</div>
           
           <table v-else>
             <thead>
               <tr>
                 <th>Дата</th>
-                <th>Пользователь</th>
-                <th>Категория / Комментарий</th>
-                <th>Цель / Тип</th>
-                <th style="text-align: right">Сумма</th>
+                <th>Користувач</th>
+                <th>Категорія / Коментар</th>
+                <th>Ціль / Тип</th>
+                <th style="text-align: right">Сума</th>
               </tr>
             </thead>
             <tbody>
@@ -98,8 +103,8 @@
                    </span>
                 </td>
             <td>
-  <span class="category-main">{{ t.category || 'Без категории' }}</span>
-  <span class="category-sub">{{ t.comment || 'Без комментария' }}</span>
+  <span class="category-main">{{ t.category || 'Без категорії' }}</span>
+  <span class="category-sub">{{ t.comment || 'Без комментарів' }}</span>
 </td>
 
 <td>
@@ -108,7 +113,7 @@
   </div>
   <div style="display: flex; gap: 4px; flex-wrap: wrap;">
     <span class="badge" :class="t.direction === 'INCOME' ? 'badge-inc' : 'badge-exp'">
-      {{ t.direction === 'INCOME' ? 'Доход' : 'Расход' }}
+      {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
     </span>
     <span class="badge badge-intent">
       {{ t.intent === 'PLANNED' ? 'План' : 'Факт' }}
@@ -121,7 +126,7 @@
               </tr>
               <tr v-if="filteredTransactions.length === 0">
                 <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">
-                  Транзакции не найдены
+                  Транзакції не знайдено
                 </td>
               </tr>
             </tbody>
@@ -130,9 +135,9 @@
       </section>
       <div class="goals-grid" v-if="goals.length">
   <section v-for="goal in goals" :key="goal.id" class="content-section goal-item">
-    <h3 style="color: var(--text-main)">🎯 Цель: {{ goal.target_name }}</h3>
+    <h3 style="color: var(--text-main)">🎯 Ціль: {{ goal.target_name }}</h3>
     <div class="goal-progress-info">
-        <small style="color: var(--text-secondary)">Прогресс: {{ calculateProgress(goal) }}%</small>
+        <small style="color: var(--text-secondary)">Прогрес: {{ calculateProgress(goal) }}%</small>
         <small style="color: var(--text-main)"><b>{{ formatNumber(goal.current_saved) }} / {{ formatNumber(goal.target_amount) }}</b></small>
     </div>
     <div class="progress-container">
@@ -148,36 +153,36 @@
       @close="closeModal"
     >
       <div v-if="modalType === 'delete'">
-        <p>Вы уверены, что хотите удалить эту транзакцию? Это действие нельзя отменить.</p>
+        <p>Ви впевнені, що хочете видалити цю транзакцію? Ця дія не може бути скасована.</p>
         <div class="modal-actions">
-          <button class="btn btn-outline" @click="closeModal">Отмена</button>
-          <button class="btn btn-danger" @click="handleDelete">Удалить</button>
+          <button class="btn btn-outline" @click="closeModal">Скасувати</button>
+          <button class="btn btn-danger" @click="handleDelete">Видалити</button>
         </div>
       </div>
 
       <div v-else class="form-grid">
         <div class="form-group">
-          <label>Направление</label>
+          <label>Напрямок</label>
           <div class="radio-group">
             <label :class="{ active: formData.direction === 'INCOME' }">
-              <input type="radio" v-model="formData.direction" value="INCOME"> Доход
+              <input type="radio" v-model="formData.direction" value="INCOME"> Прибуток
             </label>
             <label :class="{ active: formData.direction === 'EXPENSE' }">
-              <input type="radio" v-model="formData.direction" value="EXPENSE"> Расход
+              <input type="radio" v-model="formData.direction" value="EXPENSE"> Витрата
             </label>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Тип (Интент)</label>
+          <label>Тип</label>
           <select v-model="formData.intent" class="form-control">
-            <option value="ACTUAL">Факт (Произошло)</option>
-            <option value="PLANNED">План (Запланировано)</option>
+            <option value="ACTUAL">Факт</option>
+            <option value="PLANNED">План</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Категория</label>
+          <label>Категорія</label>
           <select v-model="formData.category_id" class="form-control">
             <option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">
               {{ cat.name }}
@@ -186,9 +191,9 @@
         </div>
 
         <div class="form-group">
-          <label>Цель (опционально)</label>
+          <label>Ціль (опціонально)</label>
           <select v-model="formData.goal_id" class="form-control">
-            <option :value="null">Без цели</option>
+            <option :value="null">Без цілі</option>
             <option v-for="goal in goals" :key="goal.id" :value="goal.id">
               {{ goal.target_name }}
             </option>
@@ -196,19 +201,19 @@
         </div>
 
         <div class="form-group">
-          <label>Сумма</label>
+          <label>Сума</label>
           <input type="number" v-model="formData.amount" class="form-control" placeholder="0.00" step="0.01">
         </div>
 
         <div class="form-group full-width">
-          <label>Комментарий</label>
+          <label>Коментар</label>
           <textarea v-model="formData.comment" class="form-control" rows="2"></textarea>
         </div>
 
         <div class="modal-actions full-width">
-          <button class="btn btn-outline" @click="closeModal">Отмена</button>
+          <button class="btn btn-outline" @click="closeModal">Скасувати</button>
           <button class="btn btn-primary" @click="handleSubmit">
-            {{ modalType === 'create' ? 'Создать' : 'Сохранить' }}
+            {{ modalType === 'create' ? 'Створити' : 'Зберегти' }}
           </button>
         </div>
       </div>
@@ -228,6 +233,7 @@ import ipconfig from '@/server_configs/config.js';
 import Sidebar from '@/components/budget/SideMenu.vue';
 import BaseModal from '@/components/budget/BaseModal.vue';
 
+const filterIntent = ref('ALL'); // ALL, ACTUAL, PLANNED
 // --- State ---
 const route = useRoute();
 const router = useRouter();
@@ -329,7 +335,7 @@ const fetchData = async () => {
 
     // 3. Goals
     const goalRes = await apiReq('GET', `/api/goal/getavailablegoals`);
-    // Пример показал массив напрямую
+    // Пример показал массив напрямуюы
     goals.value = Array.isArray(goalRes) ? goalRes : (goalRes?.goals || []);
     
   } finally {
@@ -345,12 +351,16 @@ const filteredTransactions = computed(() => {
   // Создаем копию массива, чтобы sort() не мутировал оригинал
   let res = [...transactions.value];
 
-  // 1. Фильтр по типу (ALL, INCOME, EXPENSE)
+  // 1. Фильтр по типу транзакции (ALL, ACTUAL, PLAN)
+    if (filterIntent.value !== 'ALL') {
+  res = res.filter(t => t.intent === filterIntent.value);
+}
+  // 2. Фильтр по типу (ALL, INCOME, EXPENSE)
   if (filterType.value !== 'ALL') {
     res = res.filter(t => t.direction === filterType.value);
   }
 
-  // 2. Поиск (теперь ищем напрямую по t.category, где лежит "Подарунки" и т.д.)
+  // 3. Поиск (теперь ищем напрямую по t.category, где лежит "Подарунки" и т.д.)
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
     res = res.filter(t => 
@@ -359,7 +369,7 @@ const filteredTransactions = computed(() => {
     );
   }
 
-  // 3. Сортировка по дате (свежие сверху)
+  // 4. Сортировка по дате (свежие сверху)
   return res.sort((a, b) => {
     const dateA = new Date(a.date || a.created_at);
     const dateB = new Date(b.date || b.created_at);
@@ -377,9 +387,9 @@ const availableCategories = computed(() => {
 // Динамический заголовок модалки
 const modalTitle = computed(() => {
   switch (modalType.value) {
-    case 'create': return 'Новая транзакция';
-    case 'edit': return 'Редактирование транзакции';
-    case 'delete': return 'Подтверждение удаления';
+    case 'create': return 'Нова транзакція';
+    case 'edit': return 'Редагування транзакції';
+    case 'delete': return 'Підтвердження видалення';
     default: return '';
   }
 });
@@ -529,7 +539,7 @@ const handleSubmit = async () => {
   }
 
   if (res && res.message === 'ok') {
-    toast.success(modalType.value === 'create' ? 'Транзакция создана' : 'Транзакция обновлена');
+    toast.success(modalType.value === 'create' ? 'Транзакція створена' : 'Транзакція оновлена');
     closeModal();
     fetchData(); // Refresh list
   }
@@ -542,7 +552,7 @@ const handleDelete = async () => {
   const res = await apiReq('DELETE', `/api/transaction/delete/${id}`);
 
   if (res && res.message === 'ok') {
-    toast.success("Транзакция удалена");
+    toast.success("Транзакциі видалена");
     closeModal();
     fetchData();
   }

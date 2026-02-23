@@ -1,19 +1,13 @@
 <template>
   <aside class="sidebar">
     <div class="logo">
-      <i class="fas fa-shapes"></i> <span>BudgetFlow</span>
+      <i class="fa-solid fa-book"></i> <span>Terminer</span>
     </div>
     <nav>
       <ul>
-        <router-link to="/dashboard" custom v-slot="{ navigate, isActive }">
-          <li @click="navigate" :class="{ active: isActive }">
-            <i class="fas fa-chart-pie"></i> <span>Дашборд</span>
-          </li>
-        </router-link>
-
-        <router-link to="/budgets" custom v-slot="{ navigate, isActive }">
-          <li @click="navigate" :class="{ active: isActive }">
-            <i class="fas fa-wallet"></i> <span>Бюджеты</span>
+        <router-link to="/budgets" custom v-slot="{ navigate }">
+          <li @click="navigate" :class="{ active: isPathActive('/budgets') }">
+            <i class="fas fa-wallet"></i> <span>Бюджети</span>
           </li>
         </router-link>
 
@@ -21,28 +15,28 @@
           v-if="currentBudgetId" 
           :to="`/transactions/${currentBudgetId}`" 
           custom 
-          v-slot="{ navigate, isActive }"
+          v-slot="{ navigate }"
         >
-          <li @click="navigate" :class="{ active: isActive }">
-            <i class="fas fa-exchange-alt"></i> <span>Транзакции</span>
+          <li @click="navigate" :class="{ active: isPathActive('/transactions') }">
+            <i class="fas fa-exchange-alt"></i> <span>Транзакції</span>
           </li>
         </router-link>
 
-        <router-link to="/categories" custom v-slot="{ navigate, isActive }">
-          <li @click="navigate" :class="{ active: isActive }">
+        <router-link to="/categories" custom v-slot="{ navigate }">
+          <li @click="navigate" :class="{ active: isPathActive('/categories') }">
             <i class="fas fa-list"></i> <span>Категорії</span>
           </li>
         </router-link>
 
-        <router-link to="/goals" custom v-slot="{ navigate, isActive }">
-          <li @click="navigate" :class="{ active: isActive }">
-            <i class="fas fa-bullseye"></i> <span>Цели</span>
+        <router-link to="/goals" custom v-slot="{ navigate }">
+          <li @click="navigate" :class="{ active: isPathActive('/goals') }">
+            <i class="fas fa-bullseye"></i> <span>Цілі</span>
           </li>
         </router-link>
 
-        <router-link to="/settings" custom v-slot="{ navigate, isActive }">
-          <li @click="navigate" :class="{ active: isActive }">
-            <i class="fas fa-cog"></i> <span>Настройки</span>
+        <router-link to="/settings" custom v-slot="{ navigate }">
+          <li @click="navigate" :class="{ active: isPathActive('/settings') }">
+            <i class="fas fa-cog"></i> <span>Налаштування</span>
           </li>
         </router-link>
       </ul>
@@ -50,81 +44,139 @@
   </aside>
 </template>
 
-<script>
-export default {
-  name: 'Sidebar',
-  computed: {
-    // Эта функция автоматически следит за URL
-    currentBudgetId() {
-      // Возвращает ID, если мы в /budgets/:budget_id или /transactions/:budget_id
-      return this.$route.params.budget_id;
-    }
-  }
-}
-</script>
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
+
+// Определяем ID бюджета из URL (из любого места пути)
+const currentBudgetId = computed(() => {
+  return route.params.budget_id || route.path.split('/')[2]; 
+});
+
+// Функция для проверки, активен ли пункт меню
+const isPathActive = (pathSegment) => {
+  return route.path.includes(pathSegment);
+};
+</script>
 <style scoped>
-/* Стили Sidebar перенесены из твоего макета */
 .sidebar {
   width: 280px;
-  background: var(--sidebar-color, #ffffff);
-  border-right: 1px solid var(--border-color, #e0e5f2);
+  background-color: #ffffff;
+  /* Убираем стандартный бордер, если он слишком яркий */
+  border-right: 1px solid #F4F7FE; 
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  flex-shrink: 0;
-  height: 100vh; /* Фикс высоты для компонента */
+  padding: 30px 0; /* Паддинги по бокам лучше перенести на элементы */
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
-  color: var(--text-main, #2b3674);
+  color: #2b3674;
   margin-bottom: 40px;
-  text-align: center;
+  padding: 0 32px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  letter-spacing: -0.5px;
 }
-.logo span { color: var(--primary, #4318ff); }
+.logo span { color: #4318ff; }
 
 nav ul { list-style: none; padding: 0; margin: 0; }
+
 nav li {
-  padding: 15px 20px;
-  margin-bottom: 5px;
-  border-radius: 12px;
+  position: relative;
+  padding: 12px 32px;
+  margin-bottom: 4px;
   cursor: pointer;
-  transition: 0.3s;
-  color: var(--text-secondary, #a3aed0);
-  font-weight: 500;
   display: flex;
   align-items: center;
-}
-nav li i { margin-right: 15px; font-size: 18px; width: 20px; text-align: center; }
-nav li:hover, nav li.active { background: var(--bg-color, #f4f7fe); color: var(--primary, #4318ff); font-weight: 700; }
-nav li.active { border-right: 3px solid var(--primary, #4318ff); }
-
-@media (max-width: 1024px) {
-    .sidebar { width: 80px; padding: 20px 10px; }
-    .logo span, nav li span { display: none; }
-    .logo { font-size: 16px; }
-    nav li { justify-content: center; }
-    nav li i { margin: 0; }
+  transition: all 0.2s ease;
+  /* Цвет текста по умолчанию (серый как на скрине) */
+  color: #A3AED0; 
+  font-weight: 500;
 }
 
+nav li i {
+  margin-right: 12px;
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+/* Эффект при наведении */
+nav li:hover {
+  color: #2B3674;
+}
+
+/* Активное состояние */
+nav li.active {
+  color: #2B3674; /* Темно-синий текст */
+  font-weight: 700;
+}
+
+/* Синий индикатор справа (как на скриншоте) */
+nav li.active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 4px;
+  background-color: #4318ff;
+  border-radius: 4px 0 0 4px;
+}
+
+/* Иконка активного пункта тоже синяя */
+nav li.active i {
+  color: #4318ff;
+}
+
+/* Мобильная адаптация */
 @media (max-width: 768px) {
-    .sidebar {
-        position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
-        flex-direction: row; border-top: 1px solid var(--border-color);
-        border-right: none;
-        padding: 0; z-index: 100; background: white;
-    }
-    nav { width: 100%; }
-    nav ul { display: flex; justify-content: space-around; height: 100%; align-items: center; }
-    nav li { flex-direction: column; gap: 4px; border: none; padding: 5px; margin: 0; }
-    nav li.active { border: none; color: var(--primary); }
-    nav li span { display: block; font-size: 10px; }
-    .logo { display: none; } /* Лого обычно скрывают в нижнем меню */
+  .sidebar {
+    /* Фиксируем строго внизу */
+    position: fixed !important; 
+    bottom: 0 !important;
+    top: auto !important; /* Отменяем верхнюю привязку, если она была */
+    left: 0;
+    width: 100%;
+    height: 65px;
+    flex-direction: row;
+    padding: 0;
+    z-index: 100;
+    border-top: 1px solid #E0E5F2;
+    border-right: none;
+  }
+  nav { width: 100%; }
+  nav ul { 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    height: 100%; 
+  }
+  nav li { 
+    padding: 0; 
+    margin: 0; 
+    flex-direction: column; 
+    gap: 2px;
+  }
+  nav li.active::after {
+    top: auto;
+    bottom: 0;
+    right: 20%;
+    left: 20%;
+    width: auto;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
+  nav li span { font-size: 10px; }
+  .logo { display: none; }
 }
 </style>

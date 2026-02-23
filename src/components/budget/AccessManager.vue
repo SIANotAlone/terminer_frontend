@@ -3,7 +3,7 @@
     
     <div class="toolbar">
       <button class="btn btn-primary" @click="openAddUserModal">
-        <i class="fas fa-user-plus"></i> Пригласить
+        <i class="fas fa-user-plus"></i> Запросити
       </button>
       
       <button 
@@ -11,7 +11,7 @@
         :disabled="!selectedAccessId" 
         @click="openRevokeConfirm"
       >
-        <i class="fas fa-user-minus"></i> Отозвать
+        <i class="fas fa-user-minus"></i> Відкликати
       </button>
     </div>
 
@@ -19,13 +19,13 @@
       <div class="table-responsive">
         
         <div v-if="loading" class="loading-state">
-            <i class="fas fa-spinner fa-spin"></i> Загрузка...
+            <i class="fas fa-spinner fa-spin"></i> Завантаження...
         </div>
 
         <table v-else>
           <thead>
             <tr>
-              <th style="width: 50%">Пользователь</th>
+              <th style="width: 50%">Користувач</th>
               <th style="width: 20%">Роль</th>
               <th style="width: 30%">Дата</th>
             </tr>
@@ -49,14 +49,14 @@
                 </div>
               </td>
               <td>
-                <span class="badge role-viewer">Участник</span>
+                <span class="badge role-viewer">Учасник</span>
               </td>
               <td class="date-cell">{{ formatDate(user.date) }}</td>
             </tr>
 
             <tr v-if="usersWithAccess.length === 0">
               <td colspan="3" class="empty-state">
-                Доступ только у владельца
+                Доступ тільки у власника
               </td>
             </tr>
           </tbody>
@@ -65,7 +65,7 @@
     </section>
 
     <BaseModal v-if="showAddModal" title="Пригласить пользователя" @close="closeModals">
-        <div v-if="loadingAllUsers" class="loading-state-modal">Загрузка...</div>
+        <div v-if="loadingAllUsers" class="loading-state-modal">Завантаження...</div>
         <div v-else class="user-select-list">
             <div v-for="u in allUsers" :key="u.id" class="user-option" :class="{ active: targetUserId === u.id }" @click="targetUserId = u.id">
                 <div class="user-avatar sm">{{ getInitials(u.username) }}</div>
@@ -74,16 +74,16 @@
             </div>
         </div>
         <template #footer>
-            <button class="btn btn-outline" @click="closeModals">Отмена</button>
-            <button class="btn btn-primary" :disabled="!targetUserId" @click="shareBudget">Добавить</button>
+            <button class="btn btn-outline" @click="closeModals">Скасувати</button>
+            <button class="btn btn-primary" :disabled="!targetUserId" @click="shareBudget">Додати</button>
         </template>
     </BaseModal>
 
-    <BaseModal v-if="showRevokeModal" title="Отозвать доступ" @close="closeModals">
-        <p>Закрыть доступ для этого пользователя?</p>
+    <BaseModal v-if="showRevokeModal" title="Відкликати доступ" @close="closeModals">
+        <p>Закрити доступ для цього користувача?</p>
         <template #footer>
-            <button class="btn btn-outline" @click="closeModals">Отмена</button>
-            <button class="btn btn-danger" @click="revokeAccess">Отозвать</button>
+            <button class="btn btn-outline" @click="closeModals">Скасувати</button>
+            <button class="btn btn-danger" @click="revokeAccess">Відкликати</button>
         </template>
     </BaseModal>
 

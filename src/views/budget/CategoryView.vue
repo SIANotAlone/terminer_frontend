@@ -4,13 +4,13 @@
 
     <main class="main-content">
       <header>
-        <h1>Управление категориями</h1>
+        <h1>Керування категоріями</h1>
       </header>
 
       <div class="toolbar">
         <div class="toolbar-actions">
           <button class="btn btn-primary create-btn" @click="openCreateModal">
-            <i class="fas fa-plus"></i> <span>Создать</span>
+            <i class="fas fa-plus"></i> <span>Створити</span>
           </button>
           
           <div class="management-group">
@@ -19,14 +19,14 @@
               :disabled="!selectedCategory || selectedCategory.is_based" 
               @click="openEditModal"
             >
-              <i class="fas fa-edit"></i> <span>Изменить</span>
+              <i class="fas fa-edit"></i> <span>Змінити</span>
             </button>
             <button 
               class="btn btn-danger" 
               :disabled="!selectedCategory || selectedCategory.is_based" 
               @click="confirmDelete"
             >
-              <i class="fas fa-trash-alt"></i> <span>Удалить</span>
+              <i class="fas fa-trash-alt"></i> <span>Видалити</span>
             </button>
           </div>
         </div>
@@ -37,21 +37,21 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              placeholder="Поиск по названию..." 
+              placeholder="Пошук за назвою..." 
               class="search-input"
             />
           </div>
 
           <select v-model="selectedOwnership" class="filter-select">
-            <option value="ALL">Все источники</option>
-            <option value="MINE">Только мои</option>
-            <option value="SYSTEM">Только системные</option>
+            <option value="ALL">Всі джерела</option>
+            <option value="MINE">Тільки мої</option>
+            <option value="SYSTEM">Тільки системні</option>
           </select>
 
           <select v-model="selectedType" class="filter-select">
-            <option value="ALL">Все типы</option>
-            <option value="EXPENSE">Расход</option>
-            <option value="INCOME">Доход</option>
+            <option value="ALL">Всі типи</option>
+            <option value="EXPENSE">Витрата</option>
+            <option value="INCOME">Прибуток</option>
           </select>
         </div>
       </div>
@@ -61,10 +61,10 @@
           <table v-if="!loading">
             <thead>
               <tr>
-                <th>Название</th>
+                <th>Назва</th>
                 <th>Тип</th>
-                <th>Владелец</th>
-                <th class="hide-mobile">Описание</th>
+                <th>Власник</th>
+                <th class="hide-mobile">Опис</th>
                 <th class="hide-mobile">Дата</th>
               </tr>
             </thead>
@@ -76,61 +76,61 @@
                 :class="{ 'selected': selectedCategory?.id === cat.id }"
               >
                 <td class="name-cell">
-                  <i v-if="cat.is_based" class="fas fa-lock lock-icon" title="Системная категория"></i>
+                  <i v-if="cat.is_based" class="fas fa-lock lock-icon" title="Системна категорія"></i>
                   <span class="category-name">{{ cat.name }}</span>
                 </td>
                 <td>
                   <span :class="cat.type === 'INCOME' ? 'type-inc' : 'type-exp'">
-                    {{ cat.type === 'INCOME' ? 'Доход' : 'Расход' }}
+                    {{ cat.type === 'INCOME' ? 'Прибуток' : 'Витрата' }}
                   </span>
                 </td>
                 <td>
                   <span :class="['badge', cat.is_based ? 'badge-base' : 'badge-user']">
-                    {{ cat.is_based ? 'Система' : 'Вы' }}
+                    {{ cat.is_based ? 'Система' : 'Ви' }}
                   </span>
                 </td>
                 <td class="description-cell hide-mobile">{{ cat.description }}</td>
                 <td class="date-cell hide-mobile">{{ cat.is_based ? '—' : formatDate(cat.created_at) }}</td>
               </tr>
               <tr v-if="filteredCategories.length === 0">
-                <td colspan="5" class="empty-state">Категории не найдены</td>
+                <td colspan="5" class="empty-state">Категорії не знайдено...</td>
               </tr>
             </tbody>
           </table>
           <div v-else class="loading-placeholder">
-            <i class="fas fa-spinner fa-spin"></i> Загрузка...
+            <i class="fas fa-spinner fa-spin"></i> Завантаження...
           </div>
         </div>
       </section>
     </main>
 
-    <BaseModal v-if="showFormModal" :title="isEditMode ? 'Изменить категорию' : 'Создать категорию'" @close="closeModals">
+    <BaseModal v-if="showFormModal" :title="isEditMode ? 'Змінити категорію' : 'Створити категорію'" @close="closeModals">
        <div class="modal-form">
         <div class="form-group">
-          <label>Название</label>
-          <input v-model="form.name" type="text" class="form-input" placeholder="Напр. Продукты" />
+          <label>Назва</label>
+          <input v-model="form.name" type="text" class="form-input" placeholder="Напр. Продукти" />
         </div>
         <br>
         <div class="form-group">
           <label>Тип</label>
           <select v-model="form.type" class="form-input">
-            <option value="EXPENSE">Расход</option>
-            <option value="INCOME">Доход</option>
+            <option value="EXPENSE">Витрата</option>
+            <option value="INCOME">Прибуток</option>
           </select>
         </div>
         <br>
         <div class="form-group">
-          <label>Описание</label>
+          <label>Опис</label>
           <textarea v-model="form.description" class="form-input" rows="3"></textarea>
         </div>
       </div>
       <template #footer>
-        <button class="btn btn-outline" @click="closeModals">Отмена</button>
-        <button class="btn btn-primary" @click="confirmAction">Сохранить</button>
+        <button class="btn btn-outline" @click="closeModals">Скасувати</button>
+        <button class="btn btn-primary" @click="confirmAction">Зберегти</button>
       </template>
     </BaseModal>
 
-    <BaseModal v-if="showConfirmModal" :title="isDeleteAction ? 'Опасное действие!' : 'Подтверждение'" @close="showConfirmModal = false">
+    <BaseModal v-if="showConfirmModal" :title="isDeleteAction ? 'Небезпечна дія!' : 'Підтвердження'" @close="showConfirmModal = false">
       <div class="confirm-content" :class="{ 'danger-mode': isDeleteAction }">
         <div v-if="isDeleteAction" class="warning-sign">
           <i class="fas fa-exclamation-triangle"></i>
@@ -138,17 +138,17 @@
         <div class="confirm-text">
           <p>{{ confirmMessage }}</p>
           <p v-if="isDeleteAction" class="danger-warning">
-            <strong>Внимание!</strong> При удалении категории будут безвозвратно удалены все связанные с ней транзакции.
+            <strong>Увага!</strong> При видаленні категорії будуть безвідновно видалені всі пов'язані з нею транзакції.
           </p>
         </div>
       </div>
       <template #footer>
-        <button class="btn btn-outline" @click="showConfirmModal = false">Отмена</button>
+        <button class="btn btn-outline" @click="showConfirmModal = false">Скасувати</button>
         <button 
           :class="['btn', isDeleteAction ? 'btn-danger-filled' : 'btn-primary']" 
           @click="executeConfirmedAction"
         >
-          {{ isDeleteAction ? 'Удалить всё' : 'Подтвердить' }}
+          {{ isDeleteAction ? 'Видалити все' : 'Підтвердити' }}
         </button>
       </template>
     </BaseModal>
@@ -296,22 +296,35 @@ export default {
   --border: #e0e5f2;
   --danger: #ee5d50;
   --radius: 20px;
+  
   display: flex; 
   min-height: 100vh; 
   background-color: var(--bg-color);
-  color: var(--text-main) !important;
+  /* Удаляем :deep(*) и задаем цвет здесь */
 }
-
-.category-page-layout :deep(*) { color: inherit; }
 
 .main-content { 
   flex: 1; 
   padding: 30px; 
   width: 100%; 
   max-width: 1400px; 
-  margin: 0 auto; 
+  margin: 0 auto;
+  /* Основной цвет для всего контента страницы */
+  color: var(--text-main);
 }
 
+/* Явно задаем цвет для заголовка, чтобы он не пропадал */
+.main-content header h1 {
+  color: var(--text-main);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Если где-то еще текст стал белым, можно добавить это: */
+.toolbar, .content-section {
+  color: var(--text-main);
+}
 /* ТУЛБАР */
 .toolbar {
   display: flex; 

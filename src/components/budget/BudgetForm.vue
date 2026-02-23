@@ -1,30 +1,30 @@
 <template>
   <div class="budget-form">
     <div v-if="loadingDicts" class="loading-spinner">
-      <i class="fas fa-circle-notch fa-spin"></i> Загрузка параметров...
+      <i class="fas fa-circle-notch fa-spin"></i> Завантаження параметрів...
     </div>
     
     <form v-else @submit.prevent="submitForm" id="budgetForm">
       <div class="form-group">
-        <label>Название бюджета</label>
-        <input v-model="form.name" type="text" required placeholder="Например: Отпуск 2026" class="form-input">
+        <label>Назва бюджету</label>
+        <input v-model="form.name" type="text" required placeholder="Наприклад: Відпочинок 2026" class="form-input">
       </div>
 
       <div class="form-group">
         <label>Тип</label>
         <select v-model="form.type_id" required class="form-input">
-          <option :value="null" disabled>Выберите тип</option>
+          <option :value="null" disabled>Выберіть тип</option>
           <option v-for="t in types" :key="t.id" :value="t.id">{{ t.name }}</option>
         </select>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Начало</label>
+          <label>Початок</label>
           <input v-model="form.date_start" type="date" required class="form-input">
         </div>
         <div class="form-group">
-          <label>Конец</label>
+          <label>Кінець</label>
           <input v-model="form.date_end" type="date" required class="form-input">
         </div>
       </div>
@@ -32,7 +32,7 @@
       <div class="form-group">
         <label>Валюта</label>
         <select v-model="form.currency_id" required class="form-input">
-          <option :value="null" disabled>Выберите валюту</option>
+          <option :value="null" disabled>Выберіть валюту</option>
           <option v-for="c in currencies" :key="c.id" :value="c.id">
             {{ c.code }} — {{ c.name }}
           </option>

@@ -4,17 +4,17 @@
 
     <main>
       <header>
-        <small style="color: var(--text-secondary)">Алекс, управление</small>
-        <h1 style="color:darkslateblue;">Мои бюджеты</h1>
+        <small style="color: var(--text-secondary)"></small>
+        <h1 style="color:darkslateblue;">Мої бюджети</h1>
       </header>
 
       <div class="toolbar">
         <div class="toolbar-group">
           <button class="btn btn-primary" @click="openCreateModal">
-            <i class="fas fa-plus"></i> <span>Создать</span>
+            <i class="fas fa-plus"></i> <span>Створити</span>
           </button>
           <button class="btn btn-outline" :disabled="!selectedBudget" @click="openEditModal">
-            <i class="fas fa-edit"></i> <span>Изменить</span>
+            <i class="fas fa-edit"></i> <span>Змінити</span>
           </button>
         </div>
           
@@ -25,7 +25,7 @@
     @click="toggleArchiveMode"
   >
     <i class="fas fa-box-archive"></i> 
-    <span>{{ isArchiveMode ? 'Выйти из архива' : 'Архив' }}</span>
+    <span>{{ isArchiveMode ? 'Вийти з архіву' : 'Архів' }}</span>
   </button>
           <button 
   class="btn btn-outline" 
@@ -41,7 +41,7 @@
   :disabled="!selectedBudget"
   @click="archiveBudget"
 >
-  <i class="fas fa-box-archive"></i> <span>Архивировать</span>
+  <i class="fas fa-box-archive"></i> <span>Архівувати</span>
 </button>
 
 <button 
@@ -49,16 +49,16 @@
   class="btn btn-outline" 
   @click="unarchiveBudget"
 >
-  <i class="fas fa-box-open"></i> <span>Разархивировать</span>
+  <i class="fas fa-box-open"></i> <span>Розархівувати</span>
 </button>
           <button class="btn btn-danger" :disabled="!selectedBudget" @click="openDeleteConfirm">
-            <i class="fas fa-trash"></i> <span>Удалить</span>
+            <i class="fas fa-trash"></i> <span>Видалити</span>
           </button>
         </div>
       </div>
 
       <div v-if="loading" class="loading-state">
-  <i class="fas fa-spinner fa-spin"></i> Загрузка бюджетов...
+  <i class="fas fa-spinner fa-spin"></i> Завантаження бюджетів...
 </div>
 
 <div v-else-if="budgets.length > 0">
@@ -79,7 +79,7 @@
       </div>
       <div class="card-header">
         <span class="type-tag">{{ budget.type }}</span>
-        <div class="status-indicator" :title="budget.is_archived ? 'В архиве' : 'Активен'"></div>
+        <div class="status-indicator" :title="budget.is_archived ? 'В архиві' : 'Активний'"></div>
       </div>
       <div class="card-body">
         <h3>{{ budget.name }}</h3>
@@ -100,7 +100,7 @@
     <button class="btn btn-outline" :disabled="currentPage === 1" @click="changePage(-1)">
       <i class="fas fa-chevron-left"></i> Назад
     </button>
-    <span class="page-num">Страница {{ currentPage }}</span>
+    <span class="page-num">Сторінка {{ currentPage }}</span>
     <button class="btn btn-outline" :disabled="budgets.length < pageSize" @click="changePage(1)">
       Вперед <i class="fas fa-chevron-right"></i>
     </button>
@@ -111,10 +111,10 @@
   <div class="empty-icon">
     <i :class="isArchiveMode ? 'fas fa-box-open' : 'fas fa-folder-plus'"></i>
   </div>
-  <h2>{{ isArchiveMode ? 'Архив пуст' : 'Бюджетов пока нет' }}</h2>
-  <p>{{ isArchiveMode ? 'Здесь появятся ваши старые записи' : 'Создайте свой первый бюджет, чтобы начать работу' }}</p>
+  <h2>{{ isArchiveMode ? 'Архів порожній' : 'Бюджетів поки що немає' }}</h2>
+  <p>{{ isArchiveMode ? 'Тут з’являться ваші старі записи' : 'Створіть свій перший бюджет, щоб почати роботу' }}</p>
   <button v-if="!isArchiveMode" class="btn btn-primary" @click="openCreateModal" style="margin: 20px auto">
-    Создать бюджет
+    Створити бюджет
   </button>
 </div>
 
@@ -122,7 +122,7 @@
 
     <BaseModal 
       v-if="showFormModal" 
-      :title="isEditMode ? 'Редактирование бюджета' : 'Новый бюджет'"
+      :title="isEditMode ? 'Редагування бюджету' : 'Новий бюджет'"
       @close="closeModals"
     >
       <BudgetForm 
@@ -133,62 +133,62 @@
         @authError="redirectToAuth"
       />
       <template #footer>
-        <button class="btn btn-outline" @click="closeModals">Отмена</button>
+        <button class="btn btn-outline" @click="closeModals">Скасувати</button>
         <button class="btn btn-primary" @click="$refs.budgetFormRef.submitForm()">
-          {{ isEditMode ? 'Сохранить' : 'Создать' }}
+          {{ isEditMode ? 'Зберегти' : 'Створити' }}
         </button>
       </template>
     </BaseModal>
 
-    <BaseModal v-if="showConfirmCreateModal" title="Подтверждение создания" @close="showConfirmCreateModal = false">
-      <p>Вы действительно хотите создать бюджет <b>{{ pendingPayload?.name }}</b>?</p>
+    <BaseModal v-if="showConfirmCreateModal" title="Підтвердження створення" @close="showConfirmCreateModal = false">
+      <p>Ви дійсно хочете створити бюджет <b>{{ pendingPayload?.name }}</b>?</p>
       <template #footer>
         <button class="btn btn-outline" @click="showConfirmCreateModal = false">Назад</button>
-        <button class="btn btn-primary" @click="confirmCreate">Да, создать</button>
+        <button class="btn btn-primary" @click="confirmCreate">Так, створити</button>
       </template>
     </BaseModal>
 
-    <BaseModal v-if="showConfirmEditModal" title="Подтверждение изменений" @close="showConfirmEditModal = false">
-      <p>Внимание! Данные бюджета будут изменены. Продолжить?</p>
+    <BaseModal v-if="showConfirmEditModal" title="Підтвердження змін" @close="showConfirmEditModal = false">
+      <p>Важливо! Дані бюджету будуть змінені. Продовжити?</p>
       <template #footer>
         <button class="btn btn-outline" @click="showConfirmEditModal = false">Назад</button>
-        <button class="btn btn-primary" @click="confirmUpdate">Сохранить изменения</button>
+        <button class="btn btn-primary" @click="confirmUpdate">Зберегти зміни</button>
       </template>
     </BaseModal>
 
-    <BaseModal v-if="showDeleteModal" title="Удаление бюджета" @close="showDeleteModal = false">
+    <BaseModal v-if="showDeleteModal" title="Видалення бюджету" @close="showDeleteModal = false">
       <p style="color: var(--danger); font-weight: 500;">
-        <i class="fas fa-exclamation-triangle"></i> Внимание!
+        <i class="fas fa-exclamation-triangle"></i> Увага!
       </p>
-      <p>Вы собираетесь удалить бюджет <b>{{ selectedBudget?.name }}</b>.</p>
-      <p>Будут удалены также <b>все транзакции</b>, связанные с этим бюджетом. Это действие необратимо.</p>
+      <p>Ви збираєтесь видалити бюджет <b>{{ selectedBudget?.name }}</b>.</p>
+      <p>Будуть видалені також <b>всі транзакції</b>, пов’язані з цим бюджетом. Ця дія незворотня.</p>
       <template #footer>
-        <button class="btn btn-outline" @click="showDeleteModal = false">Отмена</button>
-        <button class="btn btn-danger" @click="confirmDelete">Удалить</button>
+        <button class="btn btn-outline" @click="showDeleteModal = false">Скасувати</button>
+        <button class="btn btn-danger" @click="confirmDelete">Видалити</button>
       </template>
     </BaseModal>
-    <BaseModal v-if="showConfirmArchiveModal" title="Архивация бюджета" @close="showConfirmArchiveModal = false">
-  <p>Вы действительно хотите архивировать бюджет <b>{{ selectedBudget?.name }}</b>?</p>
+    <BaseModal v-if="showConfirmArchiveModal" title="Архівація бюджету" @close="showConfirmArchiveModal = false">
+  <p>Ви дійсно хочете архівувати бюджет <b>{{ selectedBudget?.name }}</b>?</p>
   <p style="font-size: 0.9em; color: var(--text-secondary);">
-    Он перестанет отображаться в основном списке, но данные сохранятся.
+    Він перестане відображатися в основном списке, але дані збережуться.
   </p>
   <template #footer>
-    <button class="btn btn-outline" @click="showConfirmArchiveModal = false">Отмена</button>
-    <button class="btn btn-primary" @click="confirmArchive">Да, архивировать</button>
+    <button class="btn btn-outline" @click="showConfirmArchiveModal = false">Скасувати</button>
+    <button class="btn btn-primary" @click="confirmArchive">Так, архівувати</button>
   </template>
 </BaseModal>
 
-<BaseModal v-if="showConfirmUnarchiveModal" title="Восстановление бюджета" @close="showConfirmUnarchiveModal = false">
-  <p>Вернуть бюджет <b>{{ selectedBudget?.name }}</b> в список активных?</p>
+<BaseModal v-if="showConfirmUnarchiveModal" title="Відновлення бюджету" @close="showConfirmUnarchiveModal = false">
+  <p>Відновити бюджет <b>{{ selectedBudget?.name }}</b> до списку активних?</p>
   <template #footer>
     <button class="btn btn-outline" @click="showConfirmUnarchiveModal = false">Назад</button>
-    <button class="btn btn-primary" @click="confirmUnarchive">Да, восстановить</button>
+    <button class="btn btn-primary" @click="confirmUnarchive">Так, відновити</button>
   </template>
 </BaseModal>
 
 <BaseModal 
   v-if="showAccessModal" 
-  :title="'Управление доступом: ' + (selectedBudget ? selectedBudget.name : '')" 
+  :title="'Керування доступами: ' + (selectedBudget ? selectedBudget.name : '')" 
   @close="showAccessModal = false"
 >
   <AccessManager 
@@ -287,7 +287,7 @@ export default {
           data: { id: this.selectedBudget.id }
         });
         
-        toast.success("Бюджет успешно удален");
+        toast.success("Бюджет успішно видалено");
         this.selectedBudget = null;
         this.showDeleteModal = false;
         this.fetchBudgets();
@@ -314,7 +314,7 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        toast.success("Бюджет успешно создан");
+        toast.success("Бюджет створено");
         this.closeModals();
         this.fetchBudgets();
       } catch (err) {

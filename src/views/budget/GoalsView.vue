@@ -4,27 +4,27 @@
 
     <main class="goals-content">
       <header class="goals-header-section">
-        <small class="text-secondary-forced">Ваши мечты и накопления</small>
-        <h1 class="text-main-forced">Цели накопления</h1>
+        <!-- <small class="text-secondary-forced">Ващі мрії та накопичення</small> -->
+        <h1 class="text-main-forced">Цілі накопичення</h1>
       </header>
 
       <div class="goals-toolbar">
         <div class="btn-group">
           <button class="btn btn-primary" @click="openGoalModal('add')">
-            <i class="fas fa-plus"></i> <span>Новая цель</span>
+            <i class="fas fa-plus"></i> <span>Нова ціль</span>
           </button>
           <button class="btn btn-outline" @click="openGoalModal('edit')">
-            <i class="fas fa-edit"></i> <span>Изменить</span>
+            <i class="fas fa-edit"></i> <span>Змінити</span>
           </button>
         </div>
         <div class="btn-group">
           <button class="btn btn-danger-light" @click="handleDeleteClick">
-            <i class="fas fa-trash"></i> <span>Удалить</span>
+            <i class="fas fa-trash"></i> <span>Видалити</span>
           </button>
         </div>
       </div>
 
-      <div v-if="loading" class="loading-status">Загрузка данных...</div>
+      <div v-if="loading" class="loading-status">Завантаження даних...</div>
       
       <div v-else class="goals-grid">
         <div 
@@ -59,12 +59,12 @@
 
           <div class="card-footer">
             <div class="footer-item">
-              <small class="text-secondary-forced">Дедлайн</small>
+              <small class="text-secondary-forced">Крайній термін</small>
               <b class="text-main-forced">{{ formatDate(goal.target_date) }}</b>
             </div>
             <div class="footer-item align-right">
-              <small class="text-secondary-forced">В месяц нужно</small>
-              <b class="text-primary-forced">{{ formatVal(goal.required_monthly_save) }}</b>
+              <small class="text-secondary-forced">В місяць потрібно</small>
+              <b class="text-primary-forced">{{ formatVal(goal.required_monthly_save) }} {{ goal.currency_code }}</b>
             </div>
           </div>
         </div>
@@ -73,16 +73,16 @@
 
     <BaseModal v-if="showGoalModal" @close="showGoalModal = false">
       <div class="modal-inner-content">
-        <h2 class="text-main-forced">{{ modalMode === 'add' ? 'Добавить цель' : 'Редактировать цель' }}</h2>
+        <h2 class="text-main-forced">{{ modalMode === 'add' ? 'Додати ціль' : 'Редагувати ціль' }}</h2>
         
         <div class="form-row">
-          <label>Название цели</label>
+          <label>Назва цілі</label>
           <input type="text" v-model="form.target_name" placeholder="Напр: MacBook Pro">
         </div>
         
         <div class="form-grid-2">
           <div class="form-row">
-            <label>Целевая сумма</label>
+            <label>Цільова сума</label>
             <input type="number" v-model="form.target_amount">
           </div>
           <div class="form-row">
@@ -94,13 +94,13 @@
         </div>
         
         <div class="form-row">
-          <label>Дедлайн</label>
+          <label>Крайній термін</label>
           <input type="date" v-model="form.target_date">
         </div>
         
         <div class="modal-actions">
-          <button class="btn btn-primary flex-grow" @click="saveGoal">Сохранить</button>
-          <button class="btn btn-outline" @click="showGoalModal = false">Отмена</button>
+          <button class="btn btn-primary flex-grow" @click="saveGoal">Зберегти</button>
+          <button class="btn btn-outline" @click="showGoalModal = false">Скасувати</button>
         </div>
       </div>
     </BaseModal>
@@ -108,7 +108,7 @@
     <BaseModal v-if="showDeleteModal" @close="showDeleteModal = false">
       <div class="delete-confirmation-modal">
         <div class="delete-header">
-          <h2 class="text-main-forced">Опасное действие!</h2>
+          <h2 class="text-main-forced">Небезпечна дія!</h2>
           <button class="close-x" @click="showDeleteModal = false">&times;</button>
         </div>
         
@@ -118,18 +118,18 @@
           </div>
           <div class="delete-message">
             <p class="text-main-forced">
-              Вы уверены, что хотите удалить цель <br>
+              Ви впевнені, що хочете видалити ціль <br>
               <strong>"{{ selectedGoal?.target_name }}"</strong>?
             </p>
             <div class="danger-alert-box">
-              Внимание! При удалении цели данные о необходимых ежемесячных накоплениях будут утеряны.
+              Увага! При видаленні цілі дані про необхідні щомісячні накопичення будуть втрачені.
             </div>
           </div>
         </div>
 
         <div class="delete-footer">
-          <button class="btn btn-outline" @click="showDeleteModal = false">Отмена</button>
-          <button class="btn btn-danger-solid" @click="confirmDelete">Удалить всё</button>
+          <button class="btn btn-outline" @click="showDeleteModal = false">Скасувати</button>
+          <button class="btn btn-danger-solid" @click="confirmDelete">Видалити все</button>
         </div>
       </div>
     </BaseModal>
@@ -137,8 +137,8 @@
     <BaseModal v-if="showTransactionsModal" @close="showTransactionsModal = false">
   <div class="modal-inner-content">
     <div class="modal-header-custom">
-      <h2 class="text-main-forced">История: {{ selectedGoal?.target_name }}</h2>
-      <p class="text-secondary-forced">Список всех пополнений и списаний</p>
+      <h2 class="text-main-forced">Історія: {{ selectedGoal?.target_name }}</h2>
+      <p class="text-secondary-forced">Список всіх поповнень та списань</p>
     </div>
 
     <div v-if="transactions.length" class="trx-container">
@@ -160,7 +160,7 @@
               {{ t.intent === 'ACTUAL' ? 'Факт' : 'План' }}
             </span>
             <span :class="['badge-pill', 'type-' + t.direction.toLowerCase()]">
-              {{ t.direction === 'INCOME' ? 'Доход' : 'Расход' }}
+              {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
             </span>
           </div>
           <div :class="['trx-amount-value', t.direction.toLowerCase()]">
@@ -174,14 +174,14 @@
       <div class="empty-icon">
         <i class="fas fa-piggy-bank"></i>
       </div>
-      <h3 class="text-main-forced">Транзакций пока нет</h3>
+      <h3 class="text-main-forced">Транзакцій поки що немає</h3>
       <p class="text-secondary-forced">
-        По этой цели еще не зафиксировано движения средств.
+        За цією ціллю поки що не зафіксовано руху коштів.
       </p>
     </div>
 
     <div class="modal-actions">
-      <button class="btn btn-outline flex-grow" @click="showTransactionsModal = false">Закрыть</button>
+      <button class="btn btn-outline flex-grow" @click="showTransactionsModal = false">Закрити</button>
     </div>
   </div>
 </BaseModal>

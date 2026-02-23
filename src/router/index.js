@@ -9,6 +9,7 @@ import BudgetView from '@/views/budget/BudgetView.vue'
 import CategoryView from '@/views/budget/CategoryView.vue'
 import GoalsView from '@/views/budget/GoalsView.vue'
 import TransactionsView from '@/views/budget/TransactionsView.vue'
+import BudgetSettingsView from '@/views/budget/BudgetSettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -92,6 +93,11 @@ const router = createRouter({
       path: '/transactions/:budgetId',
       name: 'transaction',
       component: TransactionsView,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: BudgetSettingsView,
     },
     
   ],
