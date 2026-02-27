@@ -39,6 +39,12 @@
             <i class="fas fa-cog"></i> <span>Налаштування</span>
           </li>
         </router-link>
+
+        <router-link to="/" custom v-slot="{ navigate }">
+          <li @click="navigate" >
+            <i class="fas fa-home"></i> <span>На головну</span>
+          </li>
+        </router-link>
       </ul>
     </nav>
   </aside>

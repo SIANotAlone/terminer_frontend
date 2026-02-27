@@ -35,7 +35,7 @@ function toggleServicesDropdown() {
           <li><RouterLink to="/statistics" @click="isMenuOpen = false; isServicesDropdownOpen = false">Статистика</RouterLink></li>
         </ul>
       </li>
-      
+      <li><RouterLink to="/budgets" @click="isMenuOpen = false">Бюджети</RouterLink></li>
       <li><RouterLink to="/about" @click="isMenuOpen = false">Про нас</RouterLink></li>
     </ul>
 
