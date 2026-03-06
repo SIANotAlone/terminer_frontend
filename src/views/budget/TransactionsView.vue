@@ -18,67 +18,91 @@
 
       <div class="stats-grid">
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Поточний баланс (зі списку)</small>
-    <h2 style="color: var(--text-main)">{{ formatCurrency(stats.balance) }}</h2>
-    <span :class="stats.balance >= 0 ? 'trend-up' : 'trend-down'">
-       {{ stats.balance >= 0 ? 'Додатний' : 'Від\'ємний' }}
-    </span>
+    <small style="color: var(--text-secondary)">Доступний залишок (Вільні кошти)</small>
+    <h2 :style="{ color: stats.freeMoney >= 0 ? 'var(--text-main)' : 'var(--danger)' }">
+      {{ formatCurrency(stats.freeMoney) }}
+    </h2>
+    <span class="category-sub">За вирахуванням планових витрат</span>
   </div>
+
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Прибутки</small>
-    <h2 style="color: var(--success)">{{ formatCurrency(stats.income) }}</h2>
+    <small style="color: var(--text-secondary)">Прибутки (Факт / План)</small>
+    <h2 style="color: var(--success)">
+      {{ formatCurrency(stats.actualInc) }}
+      <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
+        / {{ formatCurrency(stats.plannedInc) }}
+      </span>
+    </h2>
   </div>
+
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Витрати</small>
-    <h2 style="color: var(--danger)">{{ formatCurrency(stats.expense) }}</h2>
+    <small style="color: var(--text-secondary)">Витрати (Факт / План)</small>
+    <h2 style="color: var(--danger)">
+      {{ formatCurrency(stats.actualExp) }}
+      <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
+        / {{ formatCurrency(stats.plannedExp) }}
+      </span>
+    </h2>
   </div>
+
   <div class="stat-card">
-    <small style="color: var(--text-secondary)">Всього операцій</small>
-    <h2 style="color: var(--text-main)">{{ transactions.length }}</h2>
+    <small style="color: var(--text-secondary)">Антирекорд: {{ stats.topCat.name }}</small>
+    <h2 style="font-size: 20px; margin-bottom: 5px;">{{ formatCurrency(stats.topCat.amount) }}</h2>
+    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+    <small style="color: var(--text-secondary)">Нерозподілений прибуток: 
+      <b :style="{ color: stats.undistributed >= 0 ? 'var(--success)' : 'var(--danger)' }">
+        {{ formatCurrency(stats.undistributed) }}
+      </b>
+    </small>
   </div>
 </div>
 
-     <div class="toolbar">
-  <div class="toolbar-group">
-    <button class="btn btn-primary" @click="openModal('create')">
-      <i class="fas fa-plus"></i> <span>Додати</span>
-    </button>
-    
-    <select v-model="filterType" class="select-filter">
-      <option value="ALL">Всі операції</option>
-      <option value="INCOME">Прибуток</option>
-      <option value="EXPENSE">Витрата</option>
-    </select>
-    <select v-model="filterIntent" class="select-filter">
-  <option value="ALL">Всі</option>
-  <option value="ACTUAL">Факт</option>
-  <option value="PLANNED">План</option>
-</select>
-  </div>
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button class="btn btn-primary" @click="openModal('create')">
+            <i class="fas fa-plus"></i> <span>Додати</span>
+          </button>
 
-  <div class="toolbar-group">
-    <div class="search-wrapper">
-       <i class="fas fa-search search-icon"></i>
-       <input type="text" v-model="searchQuery" placeholder="Пошук..." class="search-input">
-    </div>
-  </div>
-  
-  <div class="toolbar-group">
-    <button class="btn btn-outline" :disabled="!selectedTransaction" @click="openModal('edit')">
-      <i class="fas fa-pen"></i> <span>Змінити</span>
-    </button>
-    <button class="btn btn-danger" :disabled="!selectedTransaction" @click="openModal('delete')">
-      <i class="fas fa-trash"></i> <span>Видалити</span>
-    </button>
-  </div>
-</div>
+          <select v-model="filterType" class="select-filter">
+            <option value="ALL">Всі операції</option>
+            <option value="INCOME">Прибуток</option>
+            <option value="EXPENSE">Витрата</option>
+          </select>
+          <select v-model="filterIntent" class="select-filter">
+            <option value="ALL">Всі</option>
+            <option value="ACTUAL">Факт</option>
+            <option value="PLANNED">План</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" v-model="searchQuery" placeholder="Пошук..." class="search-input">
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="btn btn-outline" :disabled="!selectedTransaction" @click="openModal('edit')">
+            <i class="fas fa-pen"></i> <span>Змінити</span>
+          </button>
+
+          <button class="btn btn-outline" @click="openAnalytics" style="border-color: var(--primary); color: var(--primary);">
+            <i class="fas fa-pie-chart"></i> <span>Дашборд</span>
+          </button>
+
+          <button class="btn btn-danger" :disabled="!selectedTransaction" @click="openModal('delete')">
+            <i class="fas fa-trash"></i> <span>Видалити</span>
+          </button>
+        </div>
+      </div>
 
       <section class="content-section">
         <h3 style="margin: 0 0 15px 0; color: #000;">Історія операцій</h3>
-        
+
         <div class="table-responsive">
           <div v-if="loading" class="loading-state">Завантаження даних...</div>
-          
+
           <table v-else>
             <thead>
               <tr>
@@ -90,36 +114,33 @@
               </tr>
             </thead>
             <tbody>
-              <tr 
-                v-for="t in filteredTransactions" 
-                :key="t.id"
-                :class="{ selected: selectedTransaction?.id === t.id }"
-                @click="selectRow(t)"
-              >
+              <tr v-for="t in filteredTransactions" :key="t.id" :class="{ selected: selectedTransaction?.id === t.id }"
+                @click="selectRow(t)">
                 <td style="white-space: nowrap;">{{ formatDate(t.date || t.created_at) }}</td>
                 <td>
-                   <span class="badge badge-user">
-                     <i class="fas fa-user"></i> {{ t.user || 'Me' }}
-                   </span>
+                  <span class="badge badge-user">
+                    <i class="fas fa-user"></i> {{ t.user || 'Me' }}
+                  </span>
                 </td>
-            <td>
-  <span class="category-main">{{ t.category || 'Без категорії' }}</span>
-  <span class="category-sub">{{ t.comment || 'Без комментарів' }}</span>
-</td>
+                <td>
+                  <span class="category-main">{{ t.category || 'Без категорії' }}</span>
+                  <span class="category-sub">{{ t.comment || 'Без комментарів' }}</span>
+                </td>
 
-<td>
-  <div v-if="t.goal_id" style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 4px;">
-    <i class="fas fa-bullseye"></i> {{ getGoalName(t.goal_id) }}
-  </div>
-  <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-    <span class="badge" :class="t.direction === 'INCOME' ? 'badge-inc' : 'badge-exp'">
-      {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
-    </span>
-    <span class="badge badge-intent">
-      {{ t.intent === 'PLANNED' ? 'План' : 'Факт' }}
-    </span>
-  </div>
-</td>
+                <td>
+                  <div v-if="t.goal_id"
+                    style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 4px;">
+                    <i class="fas fa-bullseye"></i> {{ getGoalName(t.goal_id) }}
+                  </div>
+                  <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                    <span class="badge" :class="t.direction === 'INCOME' ? 'badge-inc' : 'badge-exp'">
+                      {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
+                    </span>
+                    <span class="badge badge-intent">
+                      {{ t.intent === 'PLANNED' ? 'План' : 'Факт' }}
+                    </span>
+                  </div>
+                </td>
                 <td style="text-align: right" :class="t.direction === 'INCOME' ? 'amount-inc' : 'amount-exp'">
                   {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatNumber(t.amount) }}
                 </td>
@@ -134,24 +155,22 @@
         </div>
       </section>
       <div class="goals-grid" v-if="goals.length">
-  <section v-for="goal in goals" :key="goal.id" class="content-section goal-item">
-    <h3 style="color: var(--text-main)">🎯 Ціль: {{ goal.target_name }}</h3>
-    <div class="goal-progress-info">
-        <small style="color: var(--text-secondary)">Прогрес: {{ calculateProgress(goal) }}%</small>
-        <small style="color: var(--text-main)"><b>{{ formatNumber(goal.current_saved) }} / {{ formatNumber(goal.target_amount) }}</b></small>
-    </div>
-    <div class="progress-container">
-        <div class="progress-bar" :style="{ width: calculateProgress(goal) + '%', background: getGoalColor(goal) }"></div>
-    </div>  
-  </section>
-</div>
+        <section v-for="goal in goals" :key="goal.id" class="content-section goal-item">
+          <h3 style="color: var(--text-main)">🎯 Ціль: {{ goal.target_name }}</h3>
+          <div class="goal-progress-info">
+            <small style="color: var(--text-secondary)">Прогрес: {{ calculateProgress(goal) }}%</small>
+            <small style="color: var(--text-main)"><b>{{ formatNumber(goal.current_saved) }} / {{
+              formatNumber(goal.target_amount) }}</b></small>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" :style="{ width: calculateProgress(goal) + '%', background: getGoalColor(goal) }">
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
 
-    <BaseModal 
-      v-if="isModalOpen" 
-      :title="modalTitle" 
-      @close="closeModal"
-    >
+    <BaseModal v-if="isModalOpen" :title="modalTitle" @close="closeModal">
       <div v-if="modalType === 'delete'">
         <p>Ви впевнені, що хочете видалити цю транзакцію? Ця дія не може бути скасована.</p>
         <div class="modal-actions">
@@ -218,6 +237,13 @@
         </div>
       </div>
     </BaseModal>
+
+    <AnalyticsModal 
+  v-if="isAnalyticsOpen" 
+  @close="isAnalyticsOpen = false"
+>
+  <AnalyticsDashboard :budget_id="budgetId" />
+</AnalyticsModal>
   </div>
 </template>
 
@@ -232,13 +258,21 @@ import 'vue3-toastify/dist/index.css';
 import ipconfig from '@/server_configs/config.js';
 import Sidebar from '@/components/budget/SideMenu.vue';
 import BaseModal from '@/components/budget/BaseModal.vue';
+import AnalyticsDashboard from '@/components/budget/AnalyticsDashboard.vue';
+import AnalyticsModal from '@/components/budget/AnalyticsModal.vue';
+// Создаем переменную состояния для управления модальным окном
+const isAnalyticsOpen = ref(false);
+
+// Метод для открытия
+const openAnalytics = () => {
+  isAnalyticsOpen.value = true;
+};
 
 const filterIntent = ref('ALL'); // ALL, ACTUAL, PLANNED
 // --- State ---
 const route = useRoute();
 const router = useRouter();
-const budgetId = computed(() => route.params.budget_id || route.path.split('/').pop()); // Fallback parsing
-
+const budgetId = computed(() => route.params.budget_id || route.path.split('/').pop());
 const transactions = ref([]);
 const categories = ref([]);
 const goals = ref([]);
@@ -276,7 +310,7 @@ const apiReq = async (method, url, data = null) => {
       data
     };
     const res = await axios(config);
-    
+
     if (res.data && res.data.message === 'invalid token') {
       localStorage.removeItem('jwt_token'); // Clean up
       router.push('/sign-in');
@@ -287,9 +321,9 @@ const apiReq = async (method, url, data = null) => {
     console.error(err);
     // Обработка 401/403 если сервер их возвращает статусами
     if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        router.push('/sign-in');
+      router.push('/sign-in');
     } else {
-        toast.error("Ошибка соединения с сервером");
+      toast.error("Ошибка соединения с сервером");
     }
     return null;
   }
@@ -315,7 +349,7 @@ const getGoalColor = (goal) => {
 const fetchData = async () => {
   if (!budgetId.value) return;
   loading.value = true;
-  
+
   try {
     // 1. Transactions
     const txRes = await apiReq('GET', `/api/transaction/getbybudget/${budgetId.value}`);
@@ -337,7 +371,7 @@ const fetchData = async () => {
     const goalRes = await apiReq('GET', `/api/goal/getavailablegoals`);
     // Пример показал массив напрямуюы
     goals.value = Array.isArray(goalRes) ? goalRes : (goalRes?.goals || []);
-    
+
   } finally {
     loading.value = false;
     selectedTransaction.value = null; // Reset selection
@@ -352,9 +386,9 @@ const filteredTransactions = computed(() => {
   let res = [...transactions.value];
 
   // 1. Фильтр по типу транзакции (ALL, ACTUAL, PLAN)
-    if (filterIntent.value !== 'ALL') {
-  res = res.filter(t => t.intent === filterIntent.value);
-}
+  if (filterIntent.value !== 'ALL') {
+    res = res.filter(t => t.intent === filterIntent.value);
+  }
   // 2. Фильтр по типу (ALL, INCOME, EXPENSE)
   if (filterType.value !== 'ALL') {
     res = res.filter(t => t.direction === filterType.value);
@@ -363,7 +397,7 @@ const filteredTransactions = computed(() => {
   // 3. Поиск (теперь ищем напрямую по t.category, где лежит "Подарунки" и т.д.)
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
-    res = res.filter(t => 
+    res = res.filter(t =>
       (t.comment && t.comment.toLowerCase().includes(q)) ||
       (t.category && t.category.toLowerCase().includes(q))
     );
@@ -394,23 +428,51 @@ const modalTitle = computed(() => {
   }
 });
 
-// Подсчет статистики на клиенте
 const stats = computed(() => {
-  let income = 0;
-  let expense = 0;
-  
+  let actualInc = 0;
+  let plannedInc = 0;
+  let actualExp = 0;
+  let plannedExp = 0;
+
+  const categoryTotals = {}; // Для поиска антирекорда
+
   transactions.value.forEach(t => {
-    const amt = parseFloat(t.amount);
-    if (t.intent === 'ACTUAL') { // Считаем баланс только по факту? Обычно да.
-      if (t.direction === 'INCOME') income += amt;
-      if (t.direction === 'EXPENSE') expense += amt;
+    const amt = parseFloat(t.amount) || 0;
+
+    if (t.direction === 'INCOME') {
+      if (t.intent === 'ACTUAL') actualInc += amt;
+      else plannedInc += amt; // План
+    } else {
+      if (t.intent === 'ACTUAL') {
+        actualExp += amt;
+        // Группируем для антирекорда
+        const catName = t.category || 'Без категорії';
+        categoryTotals[catName] = (categoryTotals[catName] || 0) + amt;
+      } else {
+        plannedExp += amt; // План
+      }
     }
   });
 
+  // Ищем антирекорд (категория с макс. расходом)
+  let topCat = { name: '—', amount: 0 };
+  for (const [name, val] of Object.entries(categoryTotals)) {
+    if (val > topCat.amount) topCat = { name, amount: val };
+  }
+
+  const actualBalance = actualInc - actualExp;
+
   return {
-    income,
-    expense,
-    balance: income - expense
+    // Карточка 1: Доступно (Живые деньги минус резерв на будущие плановые траты)
+    freeMoney: actualBalance - plannedExp,
+    // Карточки 2 и 3: План/Факт
+    actualInc,
+    plannedInc: actualInc + plannedInc, // Общий ожидаемый доход
+    actualExp,
+    plannedExp: actualExp + plannedExp, // Общий лимит расходов
+    // Карточка 4
+    topCat,
+    undistributed: (actualInc + plannedInc) - (actualExp + plannedExp) // Весь бюджетный остаток
   };
 });
 
@@ -430,8 +492,8 @@ const getGoalName = (id) => {
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toLocaleDateString('ru-RU', { 
-    day: '2-digit', month: '2-digit', year: 'numeric' 
+  return date.toLocaleDateString('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
   });
 };
 
@@ -480,10 +542,10 @@ const openModal = (type) => {
     // 2. Поиск ID цели (самое важное!)
     // Проверяем t.goal_id, а если его нет — ищем в списке целей по названию
     let foundGoalId = t.goal_id || null;
-    
+
     // Если id нет, но есть название цели в каком-то поле (например, t.goal или t.target_name)
     if (!foundGoalId) {
-      const goalName = t.goal || t.target_name; 
+      const goalName = t.goal || t.target_name;
       if (goalName) {
         const goalObj = goals.value.find(g => g.target_name === goalName);
         if (goalObj) foundGoalId = goalObj.id;
@@ -492,7 +554,7 @@ const openModal = (type) => {
 
     // 3. Заполняем форму (Direction ставим ПЕРВЫМ)
     formData.direction = t.direction || 'EXPENSE';
-    
+
     // Используем nextTick или небольшую задержку не обязательно, 
     // но важно, чтобы direction обновил availableCategories
     formData.category_id = foundCatId;
@@ -519,13 +581,14 @@ const handleSubmit = async () => {
   const payload = {
     budget_id: budgetId.value,
     category_id: formData.category_id,
-    goal_id: formData.goal_id || null, // API может требовать null, а не пустую строку
     amount: formData.amount.toString(),
     intent: formData.intent,
     direction: formData.direction,
     comment: formData.comment
   };
-
+  if (formData.goal_id) {
+    payload.goal_id = formData.goal_id;
+  }
   let res;
 
   if (modalType.value === 'create') {
@@ -534,7 +597,7 @@ const handleSubmit = async () => {
     // Для update нужен ID транзакции
     payload.transaction_id = selectedTransaction.value.id;
     // Убираем budget_id если он не нужен в update (судя по API примеру - не нужен)
-    delete payload.budget_id; 
+    delete payload.budget_id;
     res = await apiReq('PUT', '/api/transaction/update', payload);
   }
 
@@ -547,7 +610,7 @@ const handleSubmit = async () => {
 
 const handleDelete = async () => {
   if (!selectedTransaction.value) return;
-  
+
   const id = selectedTransaction.value.id;
   const res = await apiReq('DELETE', `/api/transaction/delete/${id}`);
 
@@ -584,13 +647,14 @@ watch(() => route.params.budget_id, (newId) => {
   --text-main: #2b3674;
   --text-secondary: #a3aed0;
   --border-color: #e0e5f2;
-  --shadow: 0px 6px 18px rgba(0,0,0,0.06);
+  --shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
   --radius: 20px;
 }
 
 .dashboard-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f7fe; /* Fallback variable usage */
+  background-color: #f4f7fe;
+  /* Fallback variable usage */
   color: #2b3674;
   display: flex;
   min-height: 100vh;
@@ -610,20 +674,33 @@ header {
   align-items: center;
   margin-bottom: 30px;
 }
-header h1 { font-size: 32px; font-weight: 700; margin: 5px 0 0 0; }
+
+header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 5px 0 0 0;
+}
 
 .user-pill {
   background: white;
   padding: 8px 15px;
   border-radius: 30px;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .avatar-placeholder {
-    width: 30px; height: 30px; background: #4318ff; color: white; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  width: 30px;
+  height: 30px;
+  background: #4318ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 /* Stats */
@@ -633,58 +710,94 @@ header h1 { font-size: 32px; font-weight: 700; margin: 5px 0 0 0; }
   gap: 20px;
   margin-bottom: 30px;
 }
+
 .stat-card {
   background: white;
   padding: 20px;
   border-radius: 20px;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s;
-  border: none !important; /* Убираем обводку принудительно */
+  border: none !important;
+  /* Убираем обводку принудительно */
 }
 
 .content-section {
   background: white;
   padding: 25px;
   border-radius: 20px;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.06);
-  border: none !important; /* Убираем обводку здесь тоже */
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
+  border: none !important;
+  /* Убираем обводку здесь тоже */
 }
 
 /* Стили для прогресс-бара, чтобы он был "сочным" */
 .progress-container {
-    height: 12px; /* Чуть увеличим высоту для красоты */
-    background: #eff4fb; /* Светлый фон подложки */
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 10px;
+  height: 12px;
+  /* Чуть увеличим высоту для красоты */
+  background: #eff4fb;
+  /* Светлый фон подложки */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
 }
 
 .progress-bar {
-    height: 100%;
-    border-radius: 10px; /* Скругление самой полоски */
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Плавная анимация */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Легкая тень для объема */
+  height: 100%;
+  border-radius: 10px;
+  /* Скругление самой полоски */
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Плавная анимация */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Легкая тень для объема */
 }
-.stat-card:hover { transform: translateY(-3px); }
-.stat-card small { color: #a3aed0; font-size: 14px; font-weight: 500; }
-.stat-card h2 { margin: 10px 0; font-size: 26px; font-weight: 700; }
-.trend-up { color: #05cd99; font-size: 13px; font-weight: 600; }
-.trend-down { color: #ee5d50; font-size: 13px; font-weight: 600; }
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-card small {
+  color: #a3aed0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-card h2 {
+  margin: 10px 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.trend-up {
+  color: #05cd99;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.trend-down {
+  color: #ee5d50;
+  font-size: 13px;
+  font-weight: 600;
+}
 
 /* Toolbar */
 .toolbar {
   display: flex;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   background: white;
   padding: 15px 20px;
   border-radius: 20px;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
   gap: 15px;
 }
-.toolbar-group { display: flex; gap: 10px; align-items: center; }
+
+.toolbar-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
 /* Buttons */
 .btn {
@@ -699,19 +812,61 @@ header h1 { font-size: 32px; font-weight: 700; margin: 5px 0 0 0; }
   transition: 0.2s;
   font-size: 14px;
 }
-.btn-sm { padding: 8px 12px; font-size: 12px; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-primary { background: #4318ff; color: white; box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2); }
-.btn-outline { background: transparent; border: 1px solid #e0e5f2; color: #2b3674; }
-.btn-outline:hover:not(:disabled) { background: #f4f7fe; }
-.btn-danger { background: #fff0f0; color: #ee5d50; }
-.btn-danger:hover:not(:disabled) { background: #fee2e2; }
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #4318ff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #e0e5f2;
+  color: #2b3674;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: #f4f7fe;
+}
+
+.btn-danger {
+  background: #fff0f0;
+  color: #ee5d50;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fee2e2;
+}
 
 /* Search */
-.search-wrapper { position: relative; }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a3aed0; }
+.search-wrapper {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a3aed0;
+}
+
 .search-input {
-    padding: 10px 10px 10px 35px; border: 1px solid #e0e5f2; border-radius: 12px; outline: none; color: #2b3674;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid #e0e5f2;
+  border-radius: 12px;
+  outline: none;
+  color: #2b3674;
 }
 
 /* Table */
@@ -719,63 +874,193 @@ header h1 { font-size: 32px; font-weight: 700; margin: 5px 0 0 0; }
   background: white;
   padding: 25px;
   border-radius: 20px;
-  box-shadow: 0px 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
 }
-.table-responsive { overflow-x: auto; }
-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 800px;
+}
+
 th {
-  text-align: left; color: #a3aed0; font-weight: 600; padding: 15px;
-  border-bottom: 1px solid #e0e5f2; text-transform: uppercase; font-size: 12px;
+  text-align: left;
+  color: #a3aed0;
+  font-weight: 600;
+  padding: 15px;
+  border-bottom: 1px solid #e0e5f2;
+  text-transform: uppercase;
+  font-size: 12px;
 }
-td { padding: 15px; border-bottom: 1px solid #e0e5f2; vertical-align: middle; }
-tr { cursor: pointer; transition: 0.2s; }
-tbody tr:hover { background-color: #f8f9fa; }
-tbody tr.selected { background-color: #eff4fb; }
-tbody tr.selected td:first-child { border-left: 3px solid #4318ff; }
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid #e0e5f2;
+  vertical-align: middle;
+}
+
+tr {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+tbody tr.selected {
+  background-color: #eff4fb;
+}
+
+tbody tr.selected td:first-child {
+  border-left: 3px solid #4318ff;
+}
 
 /* Badges */
-.badge { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-block; }
-.badge-intent { background: #e2e8f0; color: #2b3674; }
-.badge-user { background: #e0e7ff; color: #4318ff; border-radius: 20px; font-size: 11px; }
-.amount-inc { color: #05cd99; font-weight: 700; }
-.amount-exp { color: #ee5d50; font-weight: 700; }
-.category-main { font-weight: 600; display: block; margin-bottom: 4px; }
-.category-sub { font-size: 12px; color: #a3aed0; }
+.badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.badge-intent {
+  background: #e2e8f0;
+  color: #2b3674;
+}
+
+.badge-user {
+  background: #e0e7ff;
+  color: #4318ff;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.amount-inc {
+  color: #05cd99;
+  font-weight: 700;
+}
+
+.amount-exp {
+  color: #ee5d50;
+  font-weight: 700;
+}
+
+.category-main {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.category-sub {
+  font-size: 12px;
+  color: #a3aed0;
+}
 
 /* Form Styles inside Modal */
-.form-grid { display: grid; gap: 15px; grid-template-columns: 1fr 1fr; }
-.full-width { grid-column: span 2; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-.form-control {
-    width: 100%; padding: 10px; border: 1px solid #e0e5f2; border-radius: 10px; font-family: inherit;
+.form-grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 1fr 1fr;
 }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.full-width {
+  grid-column: span 2;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e5f2;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
 
 /* Custom Radio Group */
-.radio-group { display: flex; gap: 10px; background: #f4f7fe; padding: 5px; border-radius: 10px; }
-.radio-group label {
-    flex: 1; text-align: center; padding: 8px; cursor: pointer; border-radius: 8px; font-size: 13px; margin: 0;
-    transition: 0.2s;
+.radio-group {
+  display: flex;
+  gap: 10px;
+  background: #f4f7fe;
+  padding: 5px;
+  border-radius: 10px;
 }
-.radio-group input { display: none; }
-.radio-group label.active { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #4318ff; font-weight: 700; }
+
+.radio-group label {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 13px;
+  margin: 0;
+  transition: 0.2s;
+}
+
+.radio-group input {
+  display: none;
+}
+
+.radio-group label.active {
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: #4318ff;
+  font-weight: 700;
+}
 
 @media (max-width: 768px) {
-  .dashboard-container { flex-direction: column; }
-  main { padding: 15px; padding-bottom: 80px; }
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .form-grid { grid-template-columns: 1fr; }
-  .full-width { grid-column: span 1; }
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  main {
+    padding: 15px;
+    padding-bottom: 80px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
 }
 
 /* Исправление видимости текста в хедере */
-header h1 { 
-  color: var(--text-main); /* Был слишком светлым на скриншоте */
-  font-size: 32px; 
-  font-weight: 700; 
+header h1 {
+  color: var(--text-main);
+  /* Был слишком светлым на скриншоте */
+  font-size: 32px;
+  font-weight: 700;
 }
-header small { 
-  color: var(--text-secondary); 
+
+header small {
+  color: var(--text-secondary);
   display: block;
   margin-bottom: 4px;
 }
@@ -794,27 +1079,34 @@ header small {
 
 /* Стилизация сетки целей */
 .goals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
-.goal-item { margin-bottom: 0; }
+
+.goal-item {
+  margin-bottom: 0;
+}
+
 .goal-progress-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
+
 .progress-container {
-    height: 10px;
-    background: #e9ecef;
-    border-radius: 10px;
-    overflow: hidden;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
 }
+
 .progress-bar {
-    height: 100%;
-    transition: width 0.5s ease;
+  height: 100%;
+  transition: width 0.5s ease;
 }
+
 /* Стиль для выпадающего списка */
 .select-filter {
   padding: 10px 15px;
@@ -834,45 +1126,50 @@ header small {
 
 /* Сетка целей */
 .goals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.goal-item { margin-bottom: 0; }
+.goal-item {
+  margin-bottom: 0;
+}
 
 .goal-progress-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .progress-container {
-    height: 10px;
-    background: #e9ecef;
-    border-radius: 10px;
-    overflow: hidden;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .progress-bar {
-    height: 100%;
-    transition: width 0.5s ease;
+  height: 100%;
+  transition: width 0.5s ease;
 }
+
 /* Бейджи для направления транзакции */
-.badge-inc { 
-  background: #e6fffb; 
-  color: var(--success); 
-  border: 1px solid rgba(5, 205, 153, 0.2); 
+.badge-inc {
+  background: #e6fffb;
+  color: var(--success);
+  border: 1px solid rgba(5, 205, 153, 0.2);
 }
-.badge-exp { 
-  background: #fff1f0; 
-  color: var(--danger); 
-  border: 1px solid rgba(238, 93, 80, 0.2); 
+
+.badge-exp {
+  background: #fff1f0;
+  color: var(--danger);
+  border: 1px solid rgba(238, 93, 80, 0.2);
 }
 
 /* Улучшаем читаемость заголовков в статистике */
 .stat-card h2 {
-  color: var(--text-main) !important; /* Принудительно убираем белый цвет */
+  color: var(--text-main) !important;
+  /* Принудительно убираем белый цвет */
 }
 </style>
