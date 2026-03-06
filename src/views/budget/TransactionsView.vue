@@ -434,7 +434,7 @@ const stats = computed(() => {
   let actualExp = 0;
   let plannedExp = 0;
 
-  const categoryTotals = {}; // Для поиска антирекорда
+  const categoryTotals = {}; // Для пошуку антирекорду
 
   transactions.value.forEach(t => {
     const amt = parseFloat(t.amount) || 0;
@@ -445,7 +445,7 @@ const stats = computed(() => {
     } else {
       if (t.intent === 'ACTUAL') {
         actualExp += amt;
-        // Группируем для антирекорда
+        // Групуємо для антирекорду (за фактом)
         const catName = t.category || 'Без категорії';
         categoryTotals[catName] = (categoryTotals[catName] || 0) + amt;
       } else {
@@ -454,25 +454,25 @@ const stats = computed(() => {
     }
   });
 
-  // Ищем антирекорд (категория с макс. расходом)
+  // Шукаємо антирекорд (категорія з макс. фактичною витратою)
   let topCat = { name: '—', amount: 0 };
   for (const [name, val] of Object.entries(categoryTotals)) {
     if (val > topCat.amount) topCat = { name, amount: val };
   }
 
-  const actualBalance = actualInc - actualExp;
-
   return {
-    // Карточка 1: Доступно (Живые деньги минус резерв на будущие плановые траты)
-    freeMoney: actualBalance - plannedExp,
-    // Карточки 2 и 3: План/Факт
+    // 1. Доступний залишок: дохід факт - планові витрати
+    freeMoney: actualInc - plannedExp,
+    
+    // 2 та 3. Прибутки та Витрати (чисті Факт та План, не змішуємо їх)
     actualInc,
-    plannedInc: actualInc + plannedInc, // Общий ожидаемый доход
+    plannedInc, 
     actualExp,
-    plannedExp: actualExp + plannedExp, // Общий лимит расходов
-    // Карточка 4
+    plannedExp, 
+    
+    // 4. Нерозподілений прибуток: тільки факт (дохід факт - витрати факт)
     topCat,
-    undistributed: (actualInc + plannedInc) - (actualExp + plannedExp) // Весь бюджетный остаток
+    undistributed: actualInc - actualExp 
   };
 });
 
