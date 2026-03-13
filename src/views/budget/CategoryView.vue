@@ -9,27 +9,30 @@
 
       <div class="toolbar">
         <div class="toolbar-actions">
-          <button class="btn btn-primary create-btn" @click="openCreateModal">
-            <i class="fas fa-plus"></i> <span>Створити</span>
-          </button>
-          
-          <div class="management-group">
-            <button 
-              class="btn btn-outline" 
-              :disabled="!selectedCategory || selectedCategory.is_based" 
-              @click="openEditModal"
-            >
-              <i class="fas fa-edit"></i> <span>Змінити</span>
-            </button>
-            <button 
-              class="btn btn-danger" 
-              :disabled="!selectedCategory || selectedCategory.is_based" 
-              @click="confirmDelete"
-            >
-              <i class="fas fa-trash-alt"></i> <span>Видалити</span>
-            </button>
-          </div>
-        </div>
+  <div class="management-group">
+    <button class="btn btn-primary create-btn" @click="openCreateModal">
+      <i class="fas fa-plus"></i> <span>Створити</span>
+    </button>
+    
+    <button 
+      class="btn btn-outline" 
+      :disabled="!selectedCategory || selectedCategory.is_based" 
+      @click="openEditModal"
+    >
+      <i class="fas fa-edit"></i> <span>Змінити</span>
+    </button>
+  </div>
+  
+  <div class="management-group">
+    <button 
+      class="btn btn-danger" 
+      :disabled="!selectedCategory || selectedCategory.is_based" 
+      @click="confirmDelete"
+    >
+      <i class="fas fa-trash-alt"></i> <span>Видалити</span>
+    </button>
+  </div>
+</div>
 
         <div class="toolbar-filters">
           <div class="search-container">

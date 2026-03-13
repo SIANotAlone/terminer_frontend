@@ -17,85 +17,134 @@
       </header>
 
       <div class="stats-grid">
-  <div class="stat-card">
-    <small style="color: var(--text-secondary)">Доступний залишок (Вільні кошти)</small>
-    <h2 :style="{ color: stats.freeMoney >= 0 ? 'var(--text-main)' : 'var(--danger)' }">
-      {{ formatCurrency(stats.freeMoney) }}
-    </h2>
-    <span class="category-sub">За вирахуванням планових витрат</span>
-  </div>
-
-  <div class="stat-card">
-    <small style="color: var(--text-secondary)">Прибутки (Факт / План)</small>
-    <h2 style="color: var(--success)">
-      {{ formatCurrency(stats.actualInc) }}
-      <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
-        / {{ formatCurrency(stats.plannedInc) }}
-      </span>
-    </h2>
-  </div>
-
-  <div class="stat-card">
-    <small style="color: var(--text-secondary)">Витрати (Факт / План)</small>
-    <h2 style="color: var(--danger)">
-      {{ formatCurrency(stats.actualExp) }}
-      <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
-        / {{ formatCurrency(stats.plannedExp) }}
-      </span>
-    </h2>
-  </div>
-
-  <div class="stat-card">
-    <small style="color: var(--text-secondary)">Антирекорд: {{ stats.topCat.name }}</small>
-    <h2 style="font-size: 20px; margin-bottom: 5px;">{{ formatCurrency(stats.topCat.amount) }}</h2>
-    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
-    <small style="color: var(--text-secondary)">Нерозподілений прибуток: 
-      <b :style="{ color: stats.undistributed >= 0 ? 'var(--success)' : 'var(--danger)' }">
-        {{ formatCurrency(stats.undistributed) }}
-      </b>
-    </small>
-  </div>
-</div>
-
-      <div class="toolbar">
-        <div class="toolbar-group">
-          <button class="btn btn-primary" @click="openModal('create')">
-            <i class="fas fa-plus"></i> <span>Додати</span>
-          </button>
-
-          <select v-model="filterType" class="select-filter">
-            <option value="ALL">Всі операції</option>
-            <option value="INCOME">Прибуток</option>
-            <option value="EXPENSE">Витрата</option>
-          </select>
-          <select v-model="filterIntent" class="select-filter">
-            <option value="ALL">Всі</option>
-            <option value="ACTUAL">Факт</option>
-            <option value="PLANNED">План</option>
-          </select>
-        </div>
-
-        <div class="toolbar-group">
-          <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" v-model="searchQuery" placeholder="Пошук..." class="search-input">
+        <div class="stat-card">
+          <div class="card-title-wrapper">
+            <small style="color: var(--text-secondary)">Доступний залишок (Вільні кошти)</small>
+            <div class="tooltip-container">
+              <i class="fas fa-question-circle tooltip-icon"></i>
+              <div class="tooltip-content">
+                <p class="tooltip-desc"><b>Що це:</b> Реальна сума грошей, яку ви можете витратити прямо зараз, не порушуючи свої фінансові плани.</p>
+                <div class="tooltip-formula">
+                  <span>Формула:</span>
+                  <code>Сума прибутку(факт) - Витрати(план)</code>
+                </div>
+              </div>
+            </div>
           </div>
+          <h2 :style="{ color: stats.freeMoney >= 0 ? 'var(--text-main)' : 'var(--danger)' }">
+            {{ formatCurrency(stats.freeMoney) }}
+          </h2>
+          <span class="category-sub">За вирахуванням планових витрат</span>
         </div>
 
-        <div class="toolbar-group">
-          <button class="btn btn-outline" :disabled="!selectedTransaction" @click="openModal('edit')">
-            <i class="fas fa-pen"></i> <span>Змінити</span>
-          </button>
+        <div class="stat-card">
+          <div class="card-title-wrapper">
+            <small style="color: var(--text-secondary)">Прибутки (Факт / План)</small>
+            <div class="tooltip-container">
+              <i class="fas fa-question-circle tooltip-icon"></i>
+              <div class="tooltip-content">
+                <p class="tooltip-desc"><b>Що це:</b> Порівняння реально отриманих коштів із тими, що ви очікували отримати за цей період.</p>
+                <div class="tooltip-formula">
+                  <span>Формула:</span>
+                  <code>Вже отримано (Факт) / Очікуваний дохід (План)</code>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h2 style="color: var(--success)">
+            {{ formatCurrency(stats.actualInc) }}
+            <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
+              / {{ formatCurrency(stats.plannedInc) }}
+            </span>
+          </h2>
+        </div>
 
-          <button class="btn btn-outline" @click="openAnalytics" style="border-color: var(--primary); color: var(--primary);">
-            <i class="fas fa-pie-chart"></i> <span>Дашборд</span>
-          </button>
+        <div class="stat-card">
+          <div class="card-title-wrapper">
+            <small style="color: var(--text-secondary)">Витрати (Факт / План)</small>
+            <div class="tooltip-container">
+              <i class="fas fa-question-circle tooltip-icon"></i>
+              <div class="tooltip-content">
+                <p class="tooltip-desc"><b>Що це:</b> Контроль ваших фактичних витрат відносно встановленого ліміту (бюджету).</p>
+                <div class="tooltip-formula">
+                  <span>Формула:</span>
+                  <code>Вже витрачено (Факт) / Ліміт витрат (План)</code>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h2 style="color: var(--danger)">
+            {{ formatCurrency(stats.actualExp) }}
+            <span style="color: var(--text-secondary); font-size: 16px; font-weight: 400;">
+              / {{ formatCurrency(stats.plannedExp) }}
+            </span>
+          </h2>
+        </div>
 
-          <button class="btn btn-danger" :disabled="!selectedTransaction" @click="openModal('delete')">
-            <i class="fas fa-trash"></i> <span>Видалити</span>
-          </button>
+        <div class="stat-card">
+          <div class="card-title-wrapper">
+            <small style="color: var(--text-secondary)">Антирекорд: {{ stats.topCat.name }}</small>
+            <div class="tooltip-container">
+              <i class="fas fa-question-circle tooltip-icon"></i>
+              <div class="tooltip-content tooltip-content-right">
+                <p class="tooltip-desc"><b>Антирекорд:</b> Категорія, на яку витрачено найбільше коштів.<br><br><b>Нерозподілений прибуток:</b> Гроші, що залишилися після всіх витрат, але ще не переведені на цілі чи заощадження.</p>
+                <div class="tooltip-formula">
+                  <span>Формула залишку:</span>
+                  <code>Прибуток(факт) - Витрати(факт)</code>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h2 style="font-size: 20px; margin-bottom: 5px;">{{ formatCurrency(stats.topCat.amount) }}</h2>
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+          <small style="color: var(--text-secondary)">Нерозподілений прибуток:
+            <b :style="{ color: stats.undistributed >= 0 ? 'var(--success)' : 'var(--danger)' }">
+              {{ formatCurrency(stats.undistributed) }}
+            </b>
+          </small>
         </div>
       </div>
+
+      <div class="toolbar">
+ <div class="toolbar-actions">
+  <div class="management-group">
+    <button class="btn btn-primary" @click="openModal('create')">
+      <i class="fas fa-plus"></i> <span>Додати</span>
+    </button>
+    
+    <button class="btn btn-outline" :disabled="!selectedTransaction" @click="openModal('edit')">
+      <i class="fas fa-pen"></i> <span>Змінити</span>
+    </button>
+  </div>
+  
+  <div class="management-group">
+    <button class="btn btn-outline" @click="openAnalytics" style="border-color: var(--primary); color: var(--primary);">
+      <i class="fas fa-pie-chart"></i> <span>Дашборд</span>
+    </button>
+
+    <button class="btn btn-danger" :disabled="!selectedTransaction" @click="openModal('delete')">
+      <i class="fas fa-trash"></i> <span>Видалити</span>
+    </button>
+  </div>
+</div>
+  <div class="toolbar-filters">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" v-model="searchQuery" placeholder="Пошук..." class="search-input">
+    </div>
+
+    <select v-model="filterType" class="filter-select">
+      <option value="ALL">Всі операції</option>
+      <option value="INCOME">Прибуток</option>
+      <option value="EXPENSE">Витрата</option>
+    </select>
+    <select v-model="filterIntent" class="filter-select">
+      <option value="ALL">Всі типи</option>
+      <option value="ACTUAL">Факт</option>
+      <option value="PLANNED">План</option>
+    </select>
+  </div>
+</div>
 
       <section class="content-section">
         <h3 style="margin: 0 0 15px 0; color: #000;">Історія операцій</h3>
@@ -238,12 +287,9 @@
       </div>
     </BaseModal>
 
-    <AnalyticsModal 
-  v-if="isAnalyticsOpen" 
-  @close="isAnalyticsOpen = false"
->
-  <AnalyticsDashboard :budget_id="budgetId" />
-</AnalyticsModal>
+    <AnalyticsModal v-if="isAnalyticsOpen" @close="isAnalyticsOpen = false">
+      <AnalyticsDashboard :budget_id="budgetId" />
+    </AnalyticsModal>
   </div>
 </template>
 
@@ -463,16 +509,16 @@ const stats = computed(() => {
   return {
     // 1. Доступний залишок: дохід факт - планові витрати
     freeMoney: actualInc - plannedExp,
-    
+
     // 2 та 3. Прибутки та Витрати (чисті Факт та План, не змішуємо їх)
     actualInc,
-    plannedInc, 
+    plannedInc,
     actualExp,
-    plannedExp, 
-    
+    plannedExp,
+
     // 4. Нерозподілений прибуток: тільки факт (дохід факт - витрати факт)
     topCat,
-    undistributed: actualInc - actualExp 
+    undistributed: actualInc - actualExp
   };
 });
 
@@ -658,16 +704,85 @@ watch(() => route.params.budget_id, (newId) => {
   color: #2b3674;
   display: flex;
   min-height: 100vh;
+  
 }
 
 main {
   flex: 1;
-  padding: 30px;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
+  min-width: 0; /* ОЧЕНЬ ВАЖНО: позволяет флекс-ребенку сжиматься < контента */
+  width: 100%;  /* Занимает всё доступное пространство */
+  overflow-x: hidden; /* Если внутри что-то вылезет, оно не растянет весь экран */
+  
+  padding: 24px;
+  box-sizing: border-box;
+}
+/* Специфічні стилі для планшетів (iPad, Android Tablets) */
+@media (min-width: 768px) and (max-width: 1199px) {
+  header h1 {
+    font-size: 26px; /* Немного уменьшаем заголовок */
+  }
+
+  /* Сетка статистики 2х2 */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px;
+  }
+
+  /* Тулбар: кнопки в один ряд, фильтры в другой */
+  .toolbar {
+    padding: 16px;
+  }
+
+  .toolbar-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .toolbar-filters {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет элементам переноситься на новую строку */
+    gap: 12px;
+    width: 100%;
+  }
+
+  .filter-select {
+    min-width: auto; /* Убираем жесткую ширину */
+  }
+
+  /* Сетка целей тоже 2х2 */
+  .goals-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
+/* Фикс для совсем маленьких экранов (телефоны) */
+@media (max-width: 767px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .toolbar-filters {
+    flex-direction: column;
+  }
+  
+  .management-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .management-group .btn {
+    flex: 1;
+  }
+}
+
+.dashboard-container {
+  width: 100%;
+  max-width: 100vw;
+  /* overflow-x: hidden; Обрезает всё, что пытается растянуть страницу */
+  min-height: 100vh;
+  display: flex;
+  background-color: var(--bg-color);
+}
 header {
   display: flex;
   justify-content: space-between;
@@ -719,6 +834,9 @@ header h1 {
   transition: transform 0.2s;
   border: none !important;
   /* Убираем обводку принудительно */
+  position: relative;
+  overflow: visible !important; /* Щоб тултип не обрізався */
+  z-index: 1; /* Початковий рівень */
 }
 
 .content-section {
@@ -752,6 +870,7 @@ header h1 {
 }
 
 .stat-card:hover {
+  z-index: 50; /* Картка, на яку навели, стає вищою за сусідні та за кнопки знизу */
   transform: translateY(-3px);
 }
 
@@ -778,25 +897,109 @@ header h1 {
   font-size: 13px;
   font-weight: 600;
 }
-
-/* Toolbar */
+/* Основной контейнер */
 .toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px 20px;
-  border-radius: 20px;
-  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
-  margin-bottom: 20px;
-  gap: 15px;
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; 
+  background: white; 
+  padding: 20px;
+  border-radius: 20px; 
+  margin-bottom: 25px; 
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.05);
 }
 
-.toolbar-group {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+/* Верхний ряд: Кнопки */
+.toolbar-actions { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  flex-wrap: wrap; 
+  gap: 15px; 
+}
+
+.management-group { 
+  display: flex; 
+  gap: 10px; 
+}
+
+/* Нижний ряд: Фильтры + ТА САМАЯ ЛИНИЯ */
+.toolbar-filters { 
+  display: flex; 
+  gap: 15px; 
+  padding-top: 15px; /* Отступ сверху до линии */
+  border-top: 1px solid var(--border-color); /* Линия-разделитель */
+}
+
+/* Поиск */
+.search-container {
+    flex: 1 1 100%; /* Поиск будет занимать всю ширину */
+  }
+
+.search-icon { 
+  position: absolute; 
+  left: 15px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  color: var(--text-secondary); 
+}
+
+.search-input {
+  width: 100%; 
+  padding: 12px 15px 12px 45px; 
+  border: 1px solid var(--border-color); 
+  border-radius: 12px;
+  background: #f8faff; 
+  font-size: 14px; 
+  outline: none;
+}
+
+/* Селекты */
+.filter-select {
+  flex: 1; /* Селекты поделят следующий ряд пополам */
+    min-width: 0; /* Убираем жесткое ограничение */
+}
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  /* Поиск занимает всё свободное место */
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-color);
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+/* Стили для селектов */
+.filter-select {
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-weight: 600;
+  min-width: 180px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+
+  .toolbar-actions,
+  .toolbar-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* Buttons */
@@ -1172,4 +1375,197 @@ header small {
   color: var(--text-main) !important;
   /* Принудительно убираем белый цвет */
 }
+/* Контейнер для подсказки */
+.has-tooltip {
+  position: relative;
+  cursor: help; /* Меняем курсор, чтобы пользователь понял, что здесь есть инфо */
+}
+/* 1. Центруємо заголовок, але робимо контейнер відносним */
+.card-title-wrapper {
+  display: flex;
+  justify-content: center; /* Текст тепер знову в центрі */
+  align-items: center;
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+  min-height: 24px; /* Забезпечуємо стабільну висоту */
+}
+
+/* 2. Вириваємо іконку з флекс-потоку, щоб вона не штовхала текст */
+.tooltip-container {
+  position: absolute;
+  right: 0; /* Притискаємо знак питання до правого краю картки */
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: 0;
+}
+
+.tooltip-icon {
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: help;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.tooltip-icon:hover {
+  color: var(--primary);
+}
+/* --- ТУЛТИПИ ЗНИЗУ (Bottom Position) --- */
+
+/* 1. Основний контейнер підказки */
+/* 3. Фікс самого тултипа */
+.tooltip-content {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  width: 280px;
+  background: #2b3674;
+  color: white;
+  padding: 16px;
+  border-radius: 16px;
+  /* Збільшуємо z-index до максимуму всередині контексту */
+  z-index: 9999; 
+  
+  /* Прибираємо backdrop-filter, якщо він був — він часто дає такі артефакти */
+  backdrop-filter: none !important;
+  
+  /* Чиста тінь без розмиття фону */
+  box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.4);
+  
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  
+  /* Фікс для рендерингу в деяких браузерах */
+  will-change: transform, opacity;
+}
+/* 2. Текст опису (Що це:) */
+.tooltip-desc {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5; /* Додаємо міжрядковий інтервал */
+  margin-bottom: 12px; /* Відсуваємо формулу вниз */
+  color: rgba(255, 255, 255, 0.95);
+}
+/* 3. Блок формули */
+.tooltip-formula {
+  background: rgba(0, 0, 0, 0.2); /* Темніша підкладка для контрасту */
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* Показ при наведенні: плавно опускаємо в фінальну позицію */
+/* Показ */
+.tooltip-container:hover .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Перевертаємо стрілочку (тепер вона зверху тултипа) */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  bottom: 100%; /* Переносимо на верхню грань */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  /* Стрілочка тепер дивиться вгору */
+  border-color: transparent transparent #2b3674 transparent;
+}
+
+/* Фікс для останньої картки (зміщення вліво, щоб не вилазило за край) */
+.tooltip-content-right {
+  left: auto;
+  right: -10px;
+  transform: translateY(-10px);
+}
+
+.tooltip-container:hover .tooltip-content-right {
+  transform: translateY(0);
+}
+
+.tooltip-content-right::after {
+  left: auto;
+  right: 15px;
+  transform: none;
+}
+.tooltip-formula span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #a3aed0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px; /* Відступ від слова "ФОРМУЛА" до самої формули */
+}
+/* Виправляємо відступи у формулі, щоб текст не злипався */
+.tooltip-formula code {
+  color: #05cd99; /* Ваш зелений колір успіху */
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4; /* Щоб багаторядкова формула не злипалася */
+  display: block;
+  white-space: normal;
+}
+/* Показ при наведенні */
+.tooltip-container:hover .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f4f7fe; /* Твой var(--bg-color) */
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* 1. Разрешаем таблице сжиматься под ширину экрана */
+  table {
+    min-width: 100% !important; 
+  }
+
+  /* 2. Скрываем колонку "Користувач" (она вторая по счету) */
+  th:nth-child(2), 
+  td:nth-child(2) {
+    display: none;
+  }
+
+  /* 3. Делаем категорию и коммент компактнее */
+  .category-main {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Если текст слишком длинный, он аккуратно обрежется */
+    max-width: 150px; /* Ограничиваем ширину, чтобы оставить место сумме */
+  }
+
+  .category-sub {
+    font-size: 11px;
+    display: block;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 4. Уменьшаем отступы в ячейках, чтобы выгадать еще немного места */
+  th, td {
+    padding: 10px 8px !important;
+  }
+
+  /* 5. Гарантируем, что сумма не переносится на новую строку */
+  td:last-child {
+    white-space: nowrap;
+    font-size: 15px;
+  }
+}
+
 </style>
