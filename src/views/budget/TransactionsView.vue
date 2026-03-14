@@ -164,7 +164,8 @@
             </thead>
             <tbody>
               <tr v-for="t in filteredTransactions" :key="t.id" :class="{ selected: selectedTransaction?.id === t.id }"
-                @click="selectRow(t)">
+                @click="selectRow(t)"
+                @dblclick="handleDblClick(t)">
                 <td style="white-space: nowrap;">{{ formatDate(t.date || t.created_at) }}</td>
                 <td  :class="t.direction === 'INCOME' ? 'amount-inc' : 'amount-exp'">
                   {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatNumber(t.amount) }}
@@ -375,7 +376,10 @@ const apiReq = async (method, url, data = null) => {
     return null;
   }
 };
-
+const handleDblClick = (t) => {
+  selectedTransaction.value = t; // Гарантируем, что транзакция выбрана
+  openModal('edit'); // Открываем модалку редактирования
+};
 // Расчет процента выполнения цели
 const calculateProgress = (goal) => {
   const current = parseFloat(goal.current_saved) || 0;
@@ -1111,6 +1115,7 @@ td {
 tr {
   cursor: pointer;
   transition: 0.2s;
+  
 }
 
 tbody tr:hover {
