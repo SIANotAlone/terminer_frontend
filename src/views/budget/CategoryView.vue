@@ -308,12 +308,13 @@ export default {
 
 .main-content { 
   flex: 1; 
+  min-width: 0; /* ОЧЕНЬ ВАЖНО: не дает контенту распирать флекс-контейнер */
   padding: 30px; 
   width: 100%; 
   max-width: 1400px; 
   margin: 0 auto;
-  /* Основной цвет для всего контента страницы */
   color: var(--text-main);
+  overflow-x: hidden; /* Прячет хвосты, если что-то всё же вылезет */
 }
 
 /* Явно задаем цвет для заголовка, чтобы он не пропадал */
@@ -536,5 +537,34 @@ tr.selected { background: #f4f7fe; }
   border-radius: 12px; 
   margin-top: 5px; 
   color: var(--text-main) !important; 
+}
+
+
+/* --- АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТІВ --- */
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* Фильтры: разрешаем перенос на новую строку */
+  .toolbar-filters {
+    flex-wrap: wrap; 
+  }
+
+  .search-container {
+    flex: 1 1 100%; /* Строка поиска займет весь верхний ряд */
+  }
+
+  .filter-select {
+    flex: 1; /* Селекты поделят нижний ряд пополам */
+    min-width: 0; 
+  }
+
+  /* Таблица: убираем жесткие 750px */
+  table {
+    min-width: 100%;
+  }
+
+  /* Скрываем колонку "Опис", чтобы таблица легко дышала на планшете */
+  th:nth-child(4), 
+  td.description-cell {
+    display: none;
+  }
 }
 </style>

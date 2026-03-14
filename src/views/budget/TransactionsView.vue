@@ -156,21 +156,20 @@
             <thead>
               <tr>
                 <th>Дата</th>
-                <th>Користувач</th>
+                <th>Сума</th>
                 <th>Категорія / Коментар</th>
                 <th>Ціль / Тип</th>
-                <th style="text-align: right">Сума</th>
+                <th>Користувач</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="t in filteredTransactions" :key="t.id" :class="{ selected: selectedTransaction?.id === t.id }"
                 @click="selectRow(t)">
                 <td style="white-space: nowrap;">{{ formatDate(t.date || t.created_at) }}</td>
-                <td>
-                  <span class="badge badge-user">
-                    <i class="fas fa-user"></i> {{ t.user || 'Me' }}
-                  </span>
+                <td  :class="t.direction === 'INCOME' ? 'amount-inc' : 'amount-exp'">
+                  {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatNumber(t.amount) }}
                 </td>
+                
                 <td>
                   <span class="category-main">{{ t.category || 'Без категорії' }}</span>
                   <span class="category-sub">{{ t.comment || 'Без комментарів' }}</span>
@@ -190,8 +189,10 @@
                     </span>
                   </div>
                 </td>
-                <td style="text-align: right" :class="t.direction === 'INCOME' ? 'amount-inc' : 'amount-exp'">
-                  {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatNumber(t.amount) }}
+                <td>
+                  <span class="badge badge-user">
+                    <i class="fas fa-user"></i> {{ t.user || 'Me' }}
+                  </span>
                 </td>
               </tr>
               <tr v-if="filteredTransactions.length === 0">
@@ -1532,9 +1533,9 @@ body {
     min-width: 100% !important; 
   }
 
-  /* 2. Скрываем колонку "Користувач" (она вторая по счету) */
-  th:nth-child(2), 
-  td:nth-child(2) {
+  /* 2. Скрываем колонку "Користувач" (она пятая по счету) */
+  th:nth-child(5), 
+  td:nth-child(5) {
     display: none;
   }
 
