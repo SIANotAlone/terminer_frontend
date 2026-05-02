@@ -9,40 +9,29 @@
 
       <div class="toolbar">
         <div class="toolbar-actions">
-  <div class="management-group">
-    <button class="btn btn-primary create-btn" @click="openCreateModal">
-      <i class="fas fa-plus"></i> <span>Створити</span>
-    </button>
-    
-    <button 
-      class="btn btn-outline" 
-      :disabled="!selectedCategory || selectedCategory.is_based" 
-      @click="openEditModal"
-    >
-      <i class="fas fa-edit"></i> <span>Змінити</span>
-    </button>
-  </div>
-  
-  <div class="management-group">
-    <button 
-      class="btn btn-danger" 
-      :disabled="!selectedCategory || selectedCategory.is_based" 
-      @click="confirmDelete"
-    >
-      <i class="fas fa-trash-alt"></i> <span>Видалити</span>
-    </button>
-  </div>
-</div>
+          <div class="management-group">
+            <button class="btn btn-primary create-btn" @click="openCreateModal">
+              <i class="fas fa-plus"></i> <span>Створити</span>
+            </button>
+
+            <button class="btn btn-outline" :disabled="!selectedCategory || selectedCategory.is_based"
+              @click="openEditModal">
+              <i class="fas fa-edit"></i> <span>Змінити</span>
+            </button>
+          </div>
+
+          <div class="management-group">
+            <button class="btn btn-danger" :disabled="!selectedCategory || selectedCategory.is_based"
+              @click="confirmDelete">
+              <i class="fas fa-trash-alt"></i> <span>Видалити</span>
+            </button>
+          </div>
+        </div>
 
         <div class="toolbar-filters">
           <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              placeholder="Пошук за назвою..." 
-              class="search-input"
-            />
+            <input v-model="searchQuery" type="text" placeholder="Пошук за назвою..." class="search-input" />
           </div>
 
           <select v-model="selectedOwnership" class="filter-select">
@@ -72,12 +61,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr 
-                v-for="cat in filteredCategories" 
-                :key="cat.id" 
-                @click="selectCategory(cat)"
-                :class="{ 'selected': selectedCategory?.id === cat.id }"
-              >
+              <tr v-for="cat in filteredCategories" :key="cat.id" @click="selectCategory(cat)"
+                :class="{ 'selected': selectedCategory?.id === cat.id }">
                 <td class="name-cell">
                   <i v-if="cat.is_based" class="fas fa-lock lock-icon" title="Системна категорія"></i>
                   <span class="category-name">{{ cat.name }}</span>
@@ -107,8 +92,9 @@
       </section>
     </main>
 
-    <BaseModal v-if="showFormModal" :title="isEditMode ? 'Змінити категорію' : 'Створити категорію'" @close="closeModals">
-       <div class="modal-form">
+    <BaseModal v-if="showFormModal" :title="isEditMode ? 'Змінити категорію' : 'Створити категорію'"
+      @close="closeModals">
+      <div class="modal-form">
         <div class="form-group">
           <label>Назва</label>
           <input v-model="form.name" type="text" class="form-input" placeholder="Напр. Продукти" />
@@ -133,7 +119,8 @@
       </template>
     </BaseModal>
 
-    <BaseModal v-if="showConfirmModal" :title="isDeleteAction ? 'Небезпечна дія!' : 'Підтвердження'" @close="showConfirmModal = false">
+    <BaseModal v-if="showConfirmModal" :title="isDeleteAction ? 'Небезпечна дія!' : 'Підтвердження'"
+      @close="showConfirmModal = false">
       <div class="confirm-content" :class="{ 'danger-mode': isDeleteAction }">
         <div v-if="isDeleteAction" class="warning-sign">
           <i class="fas fa-exclamation-triangle"></i>
@@ -147,10 +134,7 @@
       </div>
       <template #footer>
         <button class="btn btn-outline" @click="showConfirmModal = false">Скасувати</button>
-        <button 
-          :class="['btn', isDeleteAction ? 'btn-danger-filled' : 'btn-primary']" 
-          @click="executeConfirmedAction"
-        >
+        <button :class="['btn', isDeleteAction ? 'btn-danger-filled' : 'btn-primary']" @click="executeConfirmedAction">
           {{ isDeleteAction ? 'Видалити все' : 'Підтвердити' }}
         </button>
       </template>
@@ -164,6 +148,8 @@ import ipconfig from '@/server_configs/config.js';
 import Sidebar from '@/components/budget/SideMenu.vue';
 import BaseModal from '@/components/budget/BaseModal.vue';
 import { toast } from 'vue3-toastify';
+
+import { registerHotkeys } from '@/utils/Hotkeys';
 
 export default {
   name: 'CategoryPage',
@@ -182,6 +168,7 @@ export default {
       isDeleteAction: false,
       confirmMessage: '',
       pendingAction: null,
+      hotkeysCleanup: null,
       form: { id: null, name: '', description: '', type: 'EXPENSE' }
     };
   },
@@ -189,11 +176,13 @@ export default {
     filteredCategories() {
       return this.categories.filter(cat => {
         // Поиск по названию
-        const matchesSearch = cat.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-        
+        const matchesSearch = (cat.name || '')
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+
         // Фильтр по типу (Расход/Доход)
         const matchesType = this.selectedType === 'ALL' || cat.type === this.selectedType;
-        
+
         // Фильтр по источнику (Мои/Системные)
         let matchesOwnership = true;
         if (this.selectedOwnership === 'MINE') matchesOwnership = !cat.is_based;
@@ -205,6 +194,40 @@ export default {
   },
   mounted() {
     this.fetchCategories();
+
+    const closeCurrent = () => {
+      if (this.showConfirmModal) {
+        this.showConfirmModal = false;
+        this.pendingAction = null;
+        return;
+      }
+
+      if (this.showFormModal) {
+        this.closeModals();
+      }
+    };
+
+    const confirmCurrent = async () => {
+      if (this.showFormModal) {
+        this.confirmAction();
+        return;
+      }
+
+      if (this.showConfirmModal) {
+        await this.executeConfirmedAction();
+      }
+    };
+
+    this.hotkeysCleanup = registerHotkeys({
+      openCreate: () => this.openCreateModal(),
+      openDelete: () => this.confirmDelete(),
+      confirmCurrent,
+      closeCurrent,
+      isAnyModalOpen: () => this.showFormModal || this.showConfirmModal,
+    });
+  },
+  beforeUnmount() {
+    this.hotkeysCleanup?.();
   },
   methods: {
     async apiRequest(method, url, data = {}) {
@@ -230,7 +253,15 @@ export default {
       this.loading = true;
       try {
         const data = await this.apiRequest('get', '/api/category/getavailablecategories');
-        if (data) this.categories = data.categories;
+        if (data) {
+          this.categories = data.categories;
+
+          // 🔥 сброс или актуализация выбранной категории
+          if (this.selectedCategory) {
+            const exists = this.categories.find(c => c.id === this.selectedCategory.id);
+            this.selectedCategory = exists || null;
+          }
+        }
       } finally {
         this.loading = false;
       }
@@ -245,7 +276,7 @@ export default {
       this.showFormModal = true;
     },
     openEditModal() {
-      if (!this.selectedCategory) return;
+      if (!this.selectedCategory || this.selectedCategory.is_based) return;
       this.isEditMode = true;
       this.isDeleteAction = false;
       this.form = { ...this.selectedCategory };
@@ -253,14 +284,14 @@ export default {
     },
     confirmAction() {
       this.isDeleteAction = false;
-      this.confirmMessage = this.isEditMode ? "Сохранить изменения в категории?" : "Создать новую категорию?";
+      this.confirmMessage = this.isEditMode ? "Зберегти зміни в категорії?" : "Створити нову категорію?";
       this.pendingAction = this.isEditMode ? this.updateCategory : this.createCategory;
       this.showConfirmModal = true;
     },
     confirmDelete() {
       if (!this.selectedCategory) return;
       this.isDeleteAction = true;
-      this.confirmMessage = `Вы уверены, что хотите удалить категорию "${this.selectedCategory.name}"?`;
+      this.confirmMessage = `Ви впевнені, що хочете видалити категорію "${this.selectedCategory.name}"?`;
       this.pendingAction = this.deleteCategory;
       this.showConfirmModal = true;
     },
@@ -299,22 +330,24 @@ export default {
   --border: #e0e5f2;
   --danger: #ee5d50;
   --radius: 20px;
-  
-  display: flex; 
-  min-height: 100vh; 
+
+  display: flex;
+  min-height: 100vh;
   background-color: var(--bg-color);
   /* Удаляем :deep(*) и задаем цвет здесь */
 }
 
-.main-content { 
-  flex: 1; 
-  min-width: 0; /* ОЧЕНЬ ВАЖНО: не дает контенту распирать флекс-контейнер */
-  padding: 30px; 
-  width: 100%; 
-  max-width: 1400px; 
+.main-content {
+  flex: 1;
+  min-width: 0;
+  /* ОЧЕНЬ ВАЖНО: не дает контенту распирать флекс-контейнер */
+  padding: 30px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
   color: var(--text-main);
-  overflow-x: hidden; /* Прячет хвосты, если что-то всё же вылезет */
+  overflow-x: hidden;
+  /* Прячет хвосты, если что-то всё же вылезет */
 }
 
 /* Явно задаем цвет для заголовка, чтобы он не пропадал */
@@ -326,234 +359,317 @@ export default {
 }
 
 /* Если где-то еще текст стал белым, можно добавить это: */
-.toolbar, .content-section {
+.toolbar,
+.content-section {
   color: var(--text-main);
 }
+
 /* ТУЛБАР */
 .toolbar {
-  display: flex; 
-  flex-direction: column; 
-  gap: 20px; 
-  background: white; 
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: white;
   padding: 20px;
-  border-radius: var(--radius); 
-  margin-bottom: 25px; 
-  box-shadow: 0px 10px 30px rgba(0,0,0,0.05);
+  border-radius: var(--radius);
+  margin-bottom: 25px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-.toolbar-actions { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  flex-wrap: wrap; 
-  gap: 15px; 
+.toolbar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-.management-group { 
-  display: flex; 
-  gap: 10px; 
+.management-group {
+  display: flex;
+  gap: 10px;
 }
 
-.toolbar-filters { 
-  display: flex; 
-  gap: 15px; 
-  padding-top: 15px; 
-  border-top: 1px solid var(--border); 
+.toolbar-filters {
+  display: flex;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
 }
 
 /* ЭЛЕМЕНТЫ ФИЛЬТРАЦИИ */
-.search-container { 
-  position: relative; 
-  flex: 2; 
-  min-width: 200px; 
+.search-container {
+  position: relative;
+  flex: 2;
+  min-width: 200px;
 }
 
-.search-icon { 
-  position: absolute; 
-  left: 15px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  color: var(--text-secondary); 
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
 }
 
 .search-input {
-  width: 100%; 
-  padding: 12px 15px 12px 45px; 
-  border: 1px solid var(--border); 
+  width: 100%;
+  padding: 12px 15px 12px 45px;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #f8faff; 
-  font-size: 14px; 
+  background: #f8faff;
+  font-size: 14px;
   outline: none;
 }
 
 .filter-select {
-  flex: 1; 
-  padding: 12px 15px; 
-  border: 1px solid var(--border); 
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #f8faff; 
-  font-size: 14px; 
-  cursor: pointer; 
-  outline: none; 
+  background: #f8faff;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
   min-width: 160px;
 }
 
 /* КНОПКИ */
 .btn {
-  padding: 10px 20px; 
-  border-radius: 12px; 
-  font-weight: 600; 
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 8px; 
-  border: none; 
-  transition: 0.2s; 
+  gap: 8px;
+  border: none;
+  transition: 0.2s;
   font-size: 14px;
   white-space: nowrap;
 }
 
-.btn-primary { background: var(--primary); color: white !important; }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main) !important; }
-.btn-danger { background: #fff0f0; color: var(--danger) !important; }
-.btn-danger-filled { background: var(--danger); color: white !important; }
-.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-primary {
+  background: var(--primary);
+  color: white !important;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-main) !important;
+}
+
+.btn-danger {
+  background: #fff0f0;
+  color: var(--danger) !important;
+}
+
+.btn-danger-filled {
+  background: var(--danger);
+  color: white !important;
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 
 /* ТАБЛИЦА */
-.content-section { 
-  background: white; 
-  border-radius: var(--radius); 
-  padding: 20px; 
-  box-shadow: 0px 10px 30px rgba(0,0,0,0.05); 
+.content-section {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-.table-responsive { overflow-x: auto; }
-
-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  min-width: 750px; 
+.table-responsive {
+  overflow-x: auto;
 }
 
-th { 
-  text-align: left; 
-  padding: 15px; 
-  color: var(--text-secondary) !important; 
-  font-size: 12px; 
-  text-transform: uppercase; 
-  border-bottom: 1px solid var(--border); 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 750px;
 }
 
-td { 
-  padding: 15px; 
-  border-bottom: 1px solid var(--border); 
-  font-size: 14px; 
+th {
+  text-align: left;
+  padding: 15px;
+  color: var(--text-secondary) !important;
+  font-size: 12px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
 }
 
-tr:hover { background: #fcfdff; }
-tr.selected { background: #f4f7fe; }
+td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
 
-.lock-icon { margin-right: 15px; color: var(--text-secondary); font-size: 14px; }
-.type-inc { color: #05cd99 !important; font-weight: 700; }
-.type-exp { color: var(--danger) !important; font-weight: 700; }
-.badge { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; }
-.badge-base { background: #eef2f7; color: #718096 !important; }
-.badge-user { background: #e0e7ff; color: var(--primary) !important; }
+tr:hover {
+  background: #fcfdff;
+}
+
+tr.selected {
+  background: #f4f7fe;
+}
+
+.lock-icon {
+  margin-right: 15px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.type-inc {
+  color: #05cd99 !important;
+  font-weight: 700;
+}
+
+.type-exp {
+  color: var(--danger) !important;
+  font-weight: 700;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.badge-base {
+  background: #eef2f7;
+  color: #718096 !important;
+}
+
+.badge-user {
+  background: #e0e7ff;
+  color: var(--primary) !important;
+}
 
 /* МОДАЛКА ОПАСНОСТИ */
-.confirm-content { display: flex; gap: 20px; padding: 10px 0; align-items: flex-start; }
-.warning-sign { font-size: 40px; color: #ffb547; }
-.danger-mode .warning-sign { color: var(--danger); }
-.danger-warning { 
-  color: var(--danger) !important; 
-  font-size: 13px; 
-  background: #fff5f5; 
-  padding: 10px; 
-  border-radius: 8px; 
-  border-left: 4px solid var(--danger); 
-  margin-top: 10px; 
+.confirm-content {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0;
+  align-items: flex-start;
+}
+
+.warning-sign {
+  font-size: 40px;
+  color: #ffb547;
+}
+
+.danger-mode .warning-sign {
+  color: var(--danger);
+}
+
+.danger-warning {
+  color: var(--danger) !important;
+  font-size: 13px;
+  background: #fff5f5;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid var(--danger);
+  margin-top: 10px;
 }
 
 /* --- АДАПТИВНОСТЬ (ГЛАВНОЕ) --- */
 @media (max-width: 768px) {
-  .main-content { 
-    padding: 15px; 
-    padding-bottom: 100px; /* Чтобы контент не перекрывался нижним меню */
+  .main-content {
+    padding: 15px;
+    padding-bottom: 100px;
+    /* Чтобы контент не перекрывался нижним меню */
   }
 
-  .toolbar { 
-    padding: 15px; 
+  .toolbar {
+    padding: 15px;
     gap: 15px;
   }
 
-  .toolbar-actions { 
-    flex-direction: column; 
-    align-items: stretch; 
+  .toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .create-btn {
     width: 100%;
-    order: 1; /* Кнопка Создать всегда первая */
+    order: 1;
+    /* Кнопка Создать всегда первая */
   }
 
-  .management-group { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; /* Изменить и Удалить в один ряд */
+  .management-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Изменить и Удалить в один ряд */
     width: 100%;
     order: 2;
   }
 
-  .toolbar-filters { 
-    flex-direction: column; 
+  .toolbar-filters {
+    flex-direction: column;
     gap: 10px;
     padding-top: 15px;
   }
 
-  .search-container, 
-  .filter-select { 
-    width: 100%; 
+  .search-container,
+  .filter-select {
+    width: 100%;
     min-width: unset;
   }
 
   /* Скрываем второстепенные колонки, чтобы таблица не разъезжалась */
-  .hide-mobile { display: none; }
-  
-  table {
-    min-width: unset; /* Позволяем таблице сжиматься */
+  .hide-mobile {
+    display: none;
   }
 
-  th, td {
+  table {
+    min-width: unset;
+    /* Позволяем таблице сжиматься */
+  }
+
+  th,
+  td {
     padding: 10px 8px;
     font-size: 13px;
   }
 }
 
-.empty-state { text-align: center; padding: 30px; color: var(--text-secondary) !important; }
-.form-input { 
-  width: 100%; 
-  padding: 12px; 
-  border: 1px solid var(--border); 
-  border-radius: 12px; 
-  margin-top: 5px; 
-  color: var(--text-main) !important; 
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-secondary) !important;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 5px;
+  color: var(--text-main) !important;
 }
 
 
 /* --- АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТІВ --- */
 @media (min-width: 768px) and (max-width: 1199px) {
+
   /* Фильтры: разрешаем перенос на новую строку */
   .toolbar-filters {
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
   }
 
   .search-container {
-    flex: 1 1 100%; /* Строка поиска займет весь верхний ряд */
+    flex: 1 1 100%;
+    /* Строка поиска займет весь верхний ряд */
   }
 
   .filter-select {
-    flex: 1; /* Селекты поделят нижний ряд пополам */
-    min-width: 0; 
+    flex: 1;
+    /* Селекты поделят нижний ряд пополам */
+    min-width: 0;
   }
 
   /* Таблица: убираем жесткие 750px */
@@ -562,7 +678,7 @@ tr.selected { background: #f4f7fe; }
   }
 
   /* Скрываем колонку "Опис", чтобы таблица легко дышала на планшете */
-  th:nth-child(4), 
+  th:nth-child(4),
   td.description-cell {
     display: none;
   }

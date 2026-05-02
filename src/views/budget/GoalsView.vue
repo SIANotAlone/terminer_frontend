@@ -4,57 +4,72 @@
 
     <main class="goals-content">
       <header class="goals-header-section">
-        <!-- <small class="text-secondary-forced">Ващі мрії та накопичення</small> -->
         <h1 class="text-main-forced">Цілі накопичення</h1>
       </header>
 
       <div class="goals-toolbar">
-        <div class="btn-group">
-          <button class="btn btn-primary" @click="openGoalModal('add')">
-            <i class="fas fa-plus"></i> <span>Нова ціль</span>
-          </button>
-          <button class="btn btn-outline" @click="openGoalModal('edit')">
-            <i class="fas fa-edit"></i> <span>Змінити</span>
-          </button>
-        </div>
-        <div class="btn-group">
-          <button class="btn btn-danger-light" @click="handleDeleteClick">
-            <i class="fas fa-trash"></i> <span>Видалити</span>
-          </button>
-        </div>
-      </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" @click="openGoalModal('add')">
+      <i class="fas fa-plus"></i> <span>Нова ціль</span>
+    </button>
+    <button class="btn btn-outline" @click="openGoalModal('edit')">
+      <i class="fas fa-edit"></i> <span>Змінити</span>
+    </button>
+    
+    <button 
+      v-if="selectedGoal" 
+      class="btn btn-outline" 
+      @click="handleArchiveClick"
+    >
+      <i class="fas" :class="selectedGoal.archived ? 'fa-box-open' : 'fa-box'"></i>
+      <span>{{ selectedGoal.archived ? 'Розархівувати' : 'В архів' }}</span>
+    </button>
+  </div>
+  
+  <div class="btn-group">
+    <button 
+      class="btn" 
+      :class="showArchived ? 'btn-primary' : 'btn-outline'" 
+      @click="toggleArchiveView"
+    >
+      <i class="fas fa-archive"></i> 
+      <span>{{ showArchived ? 'Сховати архівні' : 'Показати архів' }}</span>
+    </button>
+    
+    <button class="btn btn-danger-light" @click="handleDeleteClick">
+      <i class="fas fa-trash"></i> <span>Видалити</span>
+    </button>
+  </div>
+</div>
 
       <div v-if="loading" class="loading-status">Завантаження даних...</div>
-      
+
       <div v-else class="goals-grid">
-        <div 
-          v-for="goal in goals" 
-          :key="goal.id"
-          class="goal-card" 
-          :class="{ 'is-selected': selectedGoalId === goal.id }"
-          @click="selectedGoalId = goal.id"
-          @dblclick="openTransactions(goal)"
-        >
+        <div v-for="goal in goals" :key="goal.id" class="goal-card" :class="{
+          'is-selected': selectedGoalId === goal.id,
+          'is-archived': goal.archived
+        }" @click="selectedGoalId = goal.id" @dblclick="openTransactions(goal)">
           <div class="card-top">
             <div class="title-group">
-              <h3 class="text-main-forced">{{ goal.target_name }}</h3>
+              <h3 class="text-main-forced">
+                {{ goal.target_name }}
+                <span v-if="goal.archived" class="badge-archived">Архів</span>
+              </h3>
               <small class="text-secondary-forced">{{ goal.currency_name }}</small>
             </div>
             <div class="goal-icon-box"><i class="fas fa-bullseye"></i></div>
           </div>
-          
+
           <div class="progress-stats">
             <span class="text-main-forced">{{ getPercent(goal) }}%</span>
             <span class="text-main-forced">
               {{ formatVal(goal.current_saved) }} / {{ formatVal(goal.target_amount) }} {{ goal.currency_code }}
             </span>
           </div>
-          
+
           <div class="progress-track">
-            <div 
-              class="progress-fill" 
-              :style="{ width: getPercent(goal) + '%', backgroundColor: getBarColor(goal) }"
-            ></div>
+            <div class="progress-fill" :style="{ width: getPercent(goal) + '%', backgroundColor: getBarColor(goal) }">
+            </div>
           </div>
 
           <div class="card-footer">
@@ -74,12 +89,12 @@
     <BaseModal v-if="showGoalModal" @close="showGoalModal = false">
       <div class="modal-inner-content">
         <h2 class="text-main-forced">{{ modalMode === 'add' ? 'Додати ціль' : 'Редагувати ціль' }}</h2>
-        
+
         <div class="form-row">
           <label>Назва цілі</label>
           <input type="text" v-model="form.target_name" placeholder="Напр: MacBook Pro">
         </div>
-        
+
         <div class="form-grid-2">
           <div class="form-row">
             <label>Цільова сума</label>
@@ -92,12 +107,12 @@
             </select>
           </div>
         </div>
-        
+
         <div class="form-row">
           <label>Крайній термін</label>
           <input type="date" v-model="form.target_date">
         </div>
-        
+
         <div class="modal-actions">
           <button class="btn btn-primary flex-grow" @click="saveGoal">Зберегти</button>
           <button class="btn btn-outline" @click="showGoalModal = false">Скасувати</button>
@@ -111,7 +126,7 @@
           <h2 class="text-main-forced">Небезпечна дія!</h2>
           <button class="close-x" @click="showDeleteModal = false">&times;</button>
         </div>
-        
+
         <div class="delete-body">
           <div class="danger-icon">
             <i class="fas fa-exclamation-triangle"></i>
@@ -135,59 +150,82 @@
     </BaseModal>
 
     <BaseModal v-if="showTransactionsModal" @close="showTransactionsModal = false">
-  <div class="modal-inner-content">
-    <div class="modal-header-custom">
-      <h2 class="text-main-forced">Історія: {{ selectedGoal?.target_name }}</h2>
-      <p class="text-secondary-forced">Список всіх поповнень та списань</p>
-    </div>
+      <div class="modal-inner-content">
+        <div class="modal-header-custom">
+          <h2 class="text-main-forced">Історія: {{ selectedGoal?.target_name }}</h2>
+          <p class="text-secondary-forced">Список всіх поповнень та списань</p>
+        </div>
 
-    <div v-if="transactions.length" class="trx-container">
-      <div v-for="t in transactions" :key="t.transaction_id" class="trx-item">
-        <div class="trx-info">
-          <div class="trx-icon" :class="t.direction.toLowerCase()">
-            <i :class="t.direction === 'INCOME' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-          </div>
-          <div class="trx-details">
-            <span class="trx-category text-main-forced">{{ t.budget }}</span>
-            <small class="trx-date text-secondary-forced">{{ t.category }}</small>
-            <small class="trx-date text-secondary-forced">{{ formatDateTime(t.date) }}</small>
+        <div v-if="transactions.length" class="trx-container">
+          <div v-for="t in transactions" :key="t.transaction_id" class="trx-item">
+            <div class="trx-info">
+              <div class="trx-icon" :class="t.direction.toLowerCase()">
+                <i :class="t.direction === 'INCOME' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+              </div>
+              <div class="trx-details">
+                <span class="trx-category text-main-forced">{{ t.budget }}</span>
+                <small class="trx-date text-secondary-forced">{{ t.category }}</small>
+                <small class="trx-date text-secondary-forced">{{ formatDateTime(t.date) }}</small>
+              </div>
+            </div>
+
+            <div class="trx-side">
+              <div class="trx-badges">
+                <span :class="['badge-pill', 'status-' + t.intent.toLowerCase()]">
+                  {{ t.intent === 'ACTUAL' ? 'Факт' : 'План' }}
+                </span>
+                <span :class="['badge-pill', 'type-' + t.direction.toLowerCase()]">
+                  {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
+                </span>
+              </div>
+              <div :class="['trx-amount-value', t.direction.toLowerCase()]">
+                {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatVal(t.amount) }}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="trx-side">
-          <div class="trx-badges">
-            <span :class="['badge-pill', 'status-' + t.intent.toLowerCase()]">
-              {{ t.intent === 'ACTUAL' ? 'Факт' : 'План' }}
-            </span>
-            <span :class="['badge-pill', 'type-' + t.direction.toLowerCase()]">
-              {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
-            </span>
+        <div v-else class="empty-state-container">
+          <div class="empty-icon">
+            <i class="fas fa-piggy-bank"></i>
           </div>
-          <div :class="['trx-amount-value', t.direction.toLowerCase()]">
-            {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatVal(t.amount) }}
-          </div>
+          <h3 class="text-main-forced">Транзакцій поки що немає</h3>
+          <p class="text-secondary-forced">
+            За цією ціллю поки що не зафіксовано руху коштів.
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-outline flex-grow" @click="showTransactionsModal = false">Закрити</button>
         </div>
       </div>
-    </div>
+    </BaseModal>
 
-    <div v-else class="empty-state-container">
-      <div class="empty-icon">
-        <i class="fas fa-piggy-bank"></i>
+    <BaseModal v-if="showArchiveModal" @close="showArchiveModal = false">
+      <div class="modal-inner-content">
+        <h2 class="text-main-forced">Підтвердження дії</h2>
+
+        <div class="form-row" style="margin-top: 20px;">
+          <p class="text-main-forced">
+            Ви впевнені, що хочете
+            <strong>{{ selectedGoal?.archived ? 'розархівувати' : 'архівувати' }}</strong>
+            ціль "{{ selectedGoal?.target_name }}"?
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary flex-grow" @click="confirmArchive">
+            Підтвердити
+          </button>
+          <button class="btn btn-outline" @click="showArchiveModal = false">
+            Скасувати
+          </button>
+        </div>
       </div>
-      <h3 class="text-main-forced">Транзакцій поки що немає</h3>
-      <p class="text-secondary-forced">
-        За цією ціллю поки що не зафіксовано руху коштів.
-      </p>
-    </div>
+    </BaseModal>
 
-    <div class="modal-actions">
-      <button class="btn btn-outline flex-grow" @click="showTransactionsModal = false">Закрити</button>
-    </div>
-  </div>
-</BaseModal>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 import ipconfig from '@/server_configs/config.js';
@@ -195,6 +233,9 @@ import Sidebar from '@/components/budget/SideMenu.vue';
 import BaseModal from '@/components/budget/BaseModal.vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+
+import { registerHotkeys } from '@/utils/Hotkeys';
+
 
 export default {
   components: { Sidebar, BaseModal },
@@ -207,8 +248,11 @@ export default {
       selectedGoalId: null,
       showGoalModal: false,
       showDeleteModal: false,
+      hotkeysCleanup: null,
       showTransactionsModal: false,
+      showArchived: false, // Новое поле: флаг отображения архива
       modalMode: 'add',
+      showArchiveModal: false, // Флаг для модалки архивации
       form: {
         id: null,
         target_name: '',
@@ -236,27 +280,59 @@ export default {
           data
         };
         const res = await axios(config);
-        
+
         if (res.data && res.data.message === 'invalid token') {
           this.$router.push('/sign-in');
           return null;
         }
         return res.data;
       } catch (err) {
-        toast.error("Ошибка сервера");
+        toast.error("Помилка сервера");
         return null;
       }
     },
 
     async loadData() {
       this.loading = true;
+      // В зависимости от флага выбираем нужный эндпоинт
+      const endpoint = this.showArchived ? '/api/goal/getallgoals' : '/api/goal/getavailablegoals';
+
       const [goals, currencies] = await Promise.all([
-        this.apiReq('get', '/api/goal/getavailablegoals'),
+        this.apiReq('get', endpoint),
         this.apiReq('get', '/api/budget/currencies')
       ]);
+
       if (goals) this.goals = goals;
       if (currencies) this.currencies = currencies;
       this.loading = false;
+    },
+
+    // Метод переключения просмотра (Архив/Активные)
+    toggleArchiveView() {
+      this.showArchived = !this.showArchived;
+      this.selectedGoalId = null; // Сбрасываем выбор при смене режима
+      this.loadData();
+    },
+
+    // Метод отправки в архив или разархивирования
+    handleArchiveClick() {
+      if (!this.selectedGoal) return toast.info("Оберіть ціль");
+      this.showArchiveModal = true;
+    },
+
+    // Новый метод для выполнения самого запроса из модалки
+    async confirmArchive() {
+      const isArchived = this.selectedGoal.archived;
+      const url = isArchived ? '/api/goal/unarchive' : '/api/goal/archive';
+
+      const res = await this.apiReq('put', url, { id: this.selectedGoal.id });
+
+      if (res && res.message === 'ok') {
+        toast.success(isArchived ? "Ціль розархівовано" : "Ціль додано в архів");
+        this.showArchiveModal = false; // Закрываем модалку
+        this.selectedGoalId = null;
+        this.loadData();
+      }
     },
 
     getPercent(goal) {
@@ -290,9 +366,9 @@ export default {
     openGoalModal(mode) {
       this.modalMode = mode;
       if (mode === 'edit') {
-        if (!this.selectedGoal) return toast.info("Выберите цель");
-        this.form = { 
-          ...this.selectedGoal, 
+        if (!this.selectedGoal) return toast.info("Оберіть ціль");
+        this.form = {
+          ...this.selectedGoal,
           target_date: this.selectedGoal.target_date.split('T')[0],
           currency_id: this.currencies.find(c => c.code === this.selectedGoal.currency_code)?.id || 1
         };
@@ -319,14 +395,14 @@ export default {
     },
 
     handleDeleteClick() {
-      if (!this.selectedGoalId) return toast.info("Выберите цель");
+      if (!this.selectedGoalId) return toast.info("Оберіть ціль");
       this.showDeleteModal = true;
     },
 
     async confirmDelete() {
       const res = await this.apiReq('delete', '/api/goal/delete', { id: this.selectedGoalId });
       if (res) {
-        toast.success("Удалено");
+        toast.success("Видалено");
         this.showDeleteModal = false;
         this.selectedGoalId = null;
         this.loadData();
@@ -334,38 +410,100 @@ export default {
     },
 
     async openTransactions(goal) {
-  // Сначала выбираем цель и открываем окно, чтобы пользователь видел загрузку/пустое состояние
-  this.selectedGoalId = goal.id;
-  this.transactions = []; // Очищаем список от старых данных другой цели
-  this.showTransactionsModal = true; 
-
-  try {
-    const res = await this.apiReq('get', `/api/goal/getgoalstransactions/${goal.id}`);
-    
-    // Если пришел массив (даже пустой), сохраняем его
-    if (Array.isArray(res)) {
-      this.transactions = res;
-    } else {
-      // Если сервер прислал null или ошибку, оставляем массив пустым
+      this.selectedGoalId = goal.id;
       this.transactions = [];
+      this.showTransactionsModal = true;
+
+      try {
+        const res = await this.apiReq('get', `/api/goal/getgoalstransactions/${goal.id}`);
+
+        if (Array.isArray(res)) {
+          this.transactions = res;
+        } else {
+          this.transactions = [];
+        }
+      } catch (err) {
+        console.error("Ошибка при получении транзакций:", err);
+        this.transactions = [];
+      }
     }
-  } catch (err) {
-    console.error("Ошибка при получении транзакций:", err);
-    this.transactions = [];
-  }
-}
   },
-  mounted() {
-    this.loadData();
-  }
+ mounted() {
+  this.loadData();
+
+  const closeActiveModal = () => {
+    if (this.showGoalModal) {
+      this.showGoalModal = false;
+      return;
+    }
+
+    if (this.showDeleteModal) {
+      this.showDeleteModal = false;
+      return;
+    }
+
+    if (this.showTransactionsModal) {
+      this.showTransactionsModal = false;
+      return;
+    }
+
+    if (this.showArchiveModal) {
+      this.showArchiveModal = false;
+      return;
+    }
+  };
+
+  const confirmHotkeyAction = async () => {
+    if (this.showGoalModal) {
+      await this.saveGoal();
+      return;
+    }
+
+    if (this.showDeleteModal) {
+      await this.confirmDelete();
+      return;
+    }
+
+    if (this.showArchiveModal) {
+      await this.confirmArchive();
+      return;
+    }
+
+    if (this.showTransactionsModal) {
+      this.showTransactionsModal = false;
+    }
+  };
+
+  this.hotkeysCleanup = registerHotkeys({
+    openCreate: () => this.openGoalModal('add'),
+    openDelete: () => this.handleDeleteClick(),
+    confirmCurrent: confirmHotkeyAction,
+    closeCurrent: closeActiveModal,
+    isAnyModalOpen: () =>
+      this.showGoalModal ||
+      this.showDeleteModal ||
+      this.showTransactionsModal ||
+      this.showArchiveModal,
+  });
+},
+beforeUnmount() {
+  this.hotkeysCleanup?.();
+},
 };
 </script>
-
 <style scoped>
 /* Принудительное переопределение белого текста */
-.text-main-forced { color: #2b3674 !important; }
-.text-secondary-forced { color: #a3aed0 !important; }
-.text-primary-forced { color: #4318ff !important; }
+.text-main-forced {
+  color: #2b3674 !important;
+}
+
+.text-secondary-forced {
+  color: #a3aed0 !important;
+}
+
+.text-primary-forced {
+  color: #4318ff !important;
+}
 
 .goals-page-container {
   display: flex;
@@ -374,7 +512,10 @@ export default {
   width: 100%;
 }
 
-.goals-content { flex: 1; padding: 40px; }
+.goals-content {
+  flex: 1;
+  padding: 40px;
+}
 
 /* Toolbar */
 .goals-toolbar {
@@ -384,59 +525,160 @@ export default {
   padding: 15px 25px;
   border-radius: 16px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-.btn-group { display: flex; gap: 12px; }
+
+.btn-group {
+  display: flex;
+  gap: 12px;
+}
 
 /* Buttons */
-.btn { padding: 10px 20px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
-.btn-primary { background: #4318ff; color: #fff; }
-.btn-outline { background: #fff; border: 1px solid #e0e5f2; color: #2b3674; }
-.btn-danger-light { background: #fee2e2; color: #ee5d50; }
-.btn-danger-solid { background: #ee5d50; color: #fff; }
+.btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+}
+
+.btn-primary {
+  background: #4318ff;
+  color: #fff;
+}
+
+.btn-outline {
+  background: #fff;
+  border: 1px solid #e0e5f2;
+  color: #2b3674;
+}
+
+.btn-danger-light {
+  background: #fee2e2;
+  color: #ee5d50;
+}
+
+.btn-danger-solid {
+  background: #ee5d50;
+  color: #fff;
+}
 
 /* Grid & Cards */
-.goals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
 .goal-card {
   background: #fff;
   padding: 25px;
   border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
   border: 2px solid transparent;
   cursor: pointer;
 }
-.goal-card.is-selected { border-color: #4318ff; background: #f8f9ff; }
 
-.card-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.goal-icon-box { width: 45px; height: 45px; background: #f4f7fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #4318ff; }
+.goal-card.is-selected {
+  border-color: #4318ff;
+  background: #f8f9ff;
+}
 
-.progress-stats { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; margin-bottom: 10px; }
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.goal-icon-box {
+  width: 45px;
+  height: 45px;
+  background: #f4f7fe;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4318ff;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
 
 /* Progress Bar Fix */
 .progress-track {
   height: 12px;
-  background: #eff4fb; /* Серый фон дорожки */
+  background: #eff4fb;
+  /* Серый фон дорожки */
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 20px;
 }
+
 .progress-fill {
   height: 100%;
   border-radius: 10px;
   transition: width 0.8s ease;
 }
 
-.card-footer { display: flex; justify-content: space-between; border-top: 1px solid #f4f7fe; padding-top: 15px; }
-.footer-item b { display: block; font-size: 15px; margin-top: 4px; }
-.align-right { text-align: right; }
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #f4f7fe;
+  padding-top: 15px;
+}
+
+.footer-item b {
+  display: block;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.align-right {
+  text-align: right;
+}
 
 /* Custom Delete Modal (Image Style) */
-.delete-confirmation-modal { padding: 10px; width: 100%; max-width: 500px; }
-.delete-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-.close-x { border: none; background: none; font-size: 24px; color: #a3aed0; cursor: pointer; }
+.delete-confirmation-modal {
+  padding: 10px;
+  width: 100%;
+  max-width: 500px;
+}
 
-.delete-body { display: flex; gap: 20px; margin-bottom: 30px; }
-.danger-icon { color: #ee5d50; font-size: 48px; }
+.delete-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.close-x {
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: #a3aed0;
+  cursor: pointer;
+}
+
+.delete-body {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.danger-icon {
+  color: #ee5d50;
+  font-size: 48px;
+}
+
 .danger-alert-box {
   margin-top: 15px;
   background: #fff5f5;
@@ -448,27 +690,104 @@ export default {
   font-weight: 600;
 }
 
-.delete-footer { display: flex; justify-content: flex-end; gap: 12px; }
+.delete-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
 
 /* Trx List */
-.trx-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f4f7fe; }
-.trx-status-labels { display: flex; gap: 5px; }
-.label { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
-.label.actual { background: #e6fcf5; color: #05cd99; }
-.label.planned { background: #f4f7fe; color: #a3aed0; }
-.label.income { color: #05cd99; border: 1px solid #05cd99; }
-.label.expense { color: #ee5d50; border: 1px solid #ee5d50; }
-.trx-amount { font-weight: 800; }
-.trx-amount.income { color: #05cd99; }
-.trx-amount.expense { color: #ee5d50; }
+.trx-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f4f7fe;
+}
+
+.trx-status-labels {
+  display: flex;
+  gap: 5px;
+}
+
+.label {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.label.actual {
+  background: #e6fcf5;
+  color: #05cd99;
+}
+
+.label.planned {
+  background: #f4f7fe;
+  color: #a3aed0;
+}
+
+.label.income {
+  color: #05cd99;
+  border: 1px solid #05cd99;
+}
+
+.label.expense {
+  color: #ee5d50;
+  border: 1px solid #ee5d50;
+}
+
+.trx-amount {
+  font-weight: 800;
+}
+
+.trx-amount.income {
+  color: #05cd99;
+}
+
+.trx-amount.expense {
+  color: #ee5d50;
+}
 
 /* Forms */
-.form-row { margin-bottom: 15px; display: flex; flex-direction: column; }
-.form-row label { font-weight: 700; font-size: 14px; color: #2b3674; margin-bottom: 8px; }
-.form-row input, .form-row select { padding: 12px; border: 1px solid #e0e5f2; border-radius: 12px; color: #2b3674; }
-.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 25px; }
-.flex-grow { flex: 1; }
+.form-row {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row label {
+  font-weight: 700;
+  font-size: 14px;
+  color: #2b3674;
+  margin-bottom: 8px;
+}
+
+.form-row input,
+.form-row select {
+  padding: 12px;
+  border: 1px solid #e0e5f2;
+  border-radius: 12px;
+  color: #2b3674;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
 /* Улучшенные стили для списка транзакций */
 .modal-header-custom {
   margin-bottom: 24px;
@@ -480,7 +799,8 @@ export default {
   gap: 12px;
   max-height: 400px;
   overflow-y: auto;
-  padding-right: 8px; /* отступ для скроллбара */
+  padding-right: 8px;
+  /* отступ для скроллбара */
 }
 
 .trx-item {
@@ -514,8 +834,15 @@ export default {
   font-size: 14px;
 }
 
-.trx-icon.income { background: #e6fcf5; color: #05cd99; }
-.trx-icon.expense { background: #fff5f5; color: #ee5d50; }
+.trx-icon.income {
+  background: #e6fcf5;
+  color: #05cd99;
+}
+
+.trx-icon.expense {
+  background: #fff5f5;
+  color: #ee5d50;
+}
 
 .trx-details {
   display: flex;
@@ -553,19 +880,40 @@ export default {
   letter-spacing: 0.5px;
 }
 
-.status-actual { background: #e2e8f0; color: #475569; }
-.status-planned { background: #fff3e0; color: #ff9800; }
+.status-actual {
+  background: #e2e8f0;
+  color: #475569;
+}
 
-.type-income { background: rgba(5, 205, 153, 0.1); color: #05cd99; border: 1px solid rgba(5, 205, 153, 0.2); }
-.type-expense { background: rgba(238, 93, 80, 0.1); color: #ee5d50; border: 1px solid rgba(238, 93, 80, 0.2); }
+.status-planned {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+.type-income {
+  background: rgba(5, 205, 153, 0.1);
+  color: #05cd99;
+  border: 1px solid rgba(5, 205, 153, 0.2);
+}
+
+.type-expense {
+  background: rgba(238, 93, 80, 0.1);
+  color: #ee5d50;
+  border: 1px solid rgba(238, 93, 80, 0.2);
+}
 
 .trx-amount-value {
   font-size: 16px;
   font-weight: 800;
 }
 
-.trx-amount-value.income { color: #05cd99; }
-.trx-amount-value.expense { color: #ee5d50; }
+.trx-amount-value.income {
+  color: #05cd99;
+}
+
+.trx-amount-value.expense {
+  color: #ee5d50;
+}
 
 /* Empty State */
 .empty-state-container {
@@ -582,5 +930,28 @@ export default {
 
 .empty-state-container h3 {
   margin-bottom: 8px;
+}
+
+/* Дополнительные стили для архива */
+.goal-card.is-archived {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}
+
+.goal-card.is-archived:hover {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.badge-archived {
+  font-size: 11px;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 </style>

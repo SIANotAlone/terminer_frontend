@@ -215,12 +215,16 @@ import BaseModal from '@/components/budget/BaseModal.vue';
 import BudgetForm from '@/components/budget/BudgetForm.vue';
 import AccessManager from '@/components/budget/AccessManager.vue';
 
+
+import { registerHotkeys } from '@/utils/Hotkeys';
+
 export default {
   name: 'BudgetList',
   components: { Sidebar, BaseModal, BudgetForm, AccessManager },
   data() {
     return {
       budgets: [],
+      hotkeysCleanup: null,
       selectedBudget: null,
       loading: false,
       isArchiveMode: false, // Переключатель режима
@@ -241,9 +245,67 @@ export default {
       pendingPayload: null
     };
   },
-  mounted() {
-    this.fetchBudgets();
-  },
+mounted() {
+  this.fetchBudgets();
+
+  const closeActiveModal = () => {
+    this.closeModals();
+  };
+
+  const confirmHotkeyAction = async () => {
+    if (this.showFormModal) {
+      this.$refs.budgetFormRef?.submitForm();
+      return;
+    }
+
+    if (this.showConfirmCreateModal) {
+      await this.confirmCreate();
+      return;
+    }
+
+    if (this.showConfirmEditModal) {
+      await this.confirmUpdate();
+      return;
+    }
+
+    if (this.showDeleteModal) {
+      await this.confirmDelete();
+      return;
+    }
+
+    if (this.showConfirmArchiveModal) {
+      await this.confirmArchive();
+      return;
+    }
+
+    if (this.showConfirmUnarchiveModal) {
+      await this.confirmUnarchive();
+      return;
+    }
+
+    if (this.showAccessModal) {
+      this.showAccessModal = false;
+    }
+  };
+
+  this.hotkeysCleanup = registerHotkeys({
+    openCreate: () => this.openCreateModal(),
+    openDelete: () => this.openDeleteConfirm(),
+    confirmCurrent: confirmHotkeyAction,
+    closeCurrent: closeActiveModal,
+    isAnyModalOpen: () =>
+      this.showFormModal ||
+      this.showConfirmCreateModal ||
+      this.showConfirmEditModal ||
+      this.showDeleteModal ||
+      this.showConfirmArchiveModal ||
+      this.showConfirmUnarchiveModal ||
+      this.showAccessModal,
+  });
+},
+beforeUnmount() {
+  this.hotkeysCleanup?.();
+},
   methods: {
     // --- API Calls ---
    async fetchBudgets() {

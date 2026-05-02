@@ -296,11 +296,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, reactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+
+import { registerHotkeys } from '@/utils/Hotkeys';
 
 // Конфиг и компоненты
 import ipconfig from '@/server_configs/config.js';
@@ -310,7 +312,7 @@ import AnalyticsDashboard from '@/components/budget/AnalyticsDashboard.vue';
 import AnalyticsModal from '@/components/budget/AnalyticsModal.vue';
 // Создаем переменную состояния для управления модальным окном
 const isAnalyticsOpen = ref(false);
-
+let hotkeysCleanup = null;
 // Метод для открытия
 const openAnalytics = () => {
   isAnalyticsOpen.value = true;
@@ -675,6 +677,45 @@ const handleDelete = async () => {
 // --- Lifecycle ---
 onMounted(() => {
   fetchData();
+
+  const closeCurrent = () => {
+    if (isModalOpen.value) {
+      closeModal();
+      return;
+    }
+
+    if (isAnalyticsOpen.value) {
+      isAnalyticsOpen.value = false;
+    }
+  };
+
+  const confirmCurrent = async () => {
+    if (!isModalOpen.value) return;
+
+    if (modalType.value === 'delete') {
+      await handleDelete();
+      return;
+    }
+
+    await handleSubmit();
+  };
+
+  hotkeysCleanup = registerHotkeys({
+    openCreate: () => openModal('create'),
+    openDelete: () => {
+      if (!selectedTransaction.value) {
+        toast.info('Оберіть транзакцію');
+        return;
+      }
+      openModal('delete');
+    },
+    confirmCurrent,
+    closeCurrent,
+    isAnyModalOpen: () => isModalOpen.value || isAnalyticsOpen.value,
+  });
+});
+onBeforeUnmount(() => {
+  hotkeysCleanup?.();
 });
 
 // Если id бюджета меняется в URL без перезагрузки страницы

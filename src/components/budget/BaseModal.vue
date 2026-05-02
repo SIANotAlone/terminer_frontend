@@ -34,7 +34,7 @@ export default {
   props: {
     title: { 
       type: String, 
-      default: 'Модальное окно' 
+      default: 'Модальне вікно' 
     }
   },
   emits: ['close']
