@@ -160,7 +160,7 @@
           <div v-for="t in transactions" :key="t.transaction_id" class="trx-item">
             <div class="trx-info">
               <div class="trx-icon" :class="t.direction.toLowerCase()">
-                <i :class="t.direction === 'INCOME' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                <i :class="t.direction === 'EXPENSE' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
               </div>
               <div class="trx-details">
                 <span class="trx-category text-main-forced">{{ t.budget }}</span>
@@ -174,9 +174,9 @@
                 <span :class="['badge-pill', 'status-' + t.intent.toLowerCase()]">
                   {{ t.intent === 'ACTUAL' ? 'Факт' : 'План' }}
                 </span>
-                <span :class="['badge-pill', 'type-' + t.direction.toLowerCase()]">
-                  {{ t.direction === 'INCOME' ? 'Прибуток' : 'Витрата' }}
-                </span>
+               <span :class="['badge-pill', 'type-' + t.direction.toLowerCase()]">
+  {{ t.direction === 'EXPENSE' ? 'Поповнення' : 'Повернуто' }}
+</span>
               </div>
               <div :class="['trx-amount-value', t.direction.toLowerCase()]">
                 {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatVal(t.amount) }}
@@ -835,13 +835,13 @@ beforeUnmount() {
 }
 
 .trx-icon.income {
-  background: #e6fcf5;
-  color: #05cd99;
+  background: #fff5f5;
+  color: #ee5d50;
 }
 
 .trx-icon.expense {
-  background: #fff5f5;
-  color: #ee5d50;
+  background: #e6fcf5;
+  color: #05cd99;
 }
 
 .trx-details {
@@ -889,17 +889,16 @@ beforeUnmount() {
   background: #fff3e0;
   color: #ff9800;
 }
-
 .type-income {
-  background: rgba(5, 205, 153, 0.1);
-  color: #05cd99;
-  border: 1px solid rgba(5, 205, 153, 0.2);
-}
-
-.type-expense {
   background: rgba(238, 93, 80, 0.1);
   color: #ee5d50;
   border: 1px solid rgba(238, 93, 80, 0.2);
+}
+
+.type-expense {
+  background: rgba(5, 205, 153, 0.1);
+  color: #05cd99;
+  border: 1px solid rgba(5, 205, 153, 0.2);
 }
 
 .trx-amount-value {
@@ -908,11 +907,11 @@ beforeUnmount() {
 }
 
 .trx-amount-value.income {
-  color: #05cd99;
+  color: #ee5d50;
 }
 
 .trx-amount-value.expense {
-  color: #ee5d50;
+  color: #05cd99;
 }
 
 /* Empty State */
