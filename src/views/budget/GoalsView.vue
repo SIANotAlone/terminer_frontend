@@ -179,7 +179,7 @@
 </span>
               </div>
               <div :class="['trx-amount-value', t.direction.toLowerCase()]">
-                {{ t.direction === 'INCOME' ? '+' : '-' }}{{ formatVal(t.amount) }}
+                {{ t.direction === 'INCOME' ? '-' : '+' }}{{ formatVal(t.amount) }}
               </div>
             </div>
           </div>
