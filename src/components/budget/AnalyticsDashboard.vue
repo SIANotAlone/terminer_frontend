@@ -5,25 +5,25 @@
     </div>
 
     <div v-else class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-info">
-          <h4>📊 Структура витрат</h4>
-          <span>Розподіл по категоріях</span>
-        </div>
-        <div class="chart-body">
-          <div ref="donutChart"></div>
-        </div>
-      </div>
+      <div class="chart-card full-width">
+  <div class="chart-info">
+    <h4>📊 Структура витрат</h4>
+    <span>Розподіл по категоріях</span>
+  </div>
+  <div class="chart-body">
+    <div ref="donutChart"></div>
+  </div>
+</div>
 
-      <div class="chart-card">
-        <div class="chart-info">
-          <h4>⚔️ План vs Факт</h4>
-          <span>Перевищення лімітів</span>
-        </div>
-        <div class="chart-body">
-          <div ref="barChart"></div>
-        </div>
-      </div>
+<div class="chart-card full-width">
+  <div class="chart-info">
+    <h4>⚔️ План vs Факт</h4>
+    <span>Перевищення лімітів</span>
+  </div>
+  <div class="chart-body">
+    <div ref="barChart"></div>
+  </div>
+</div>
 
       <div class="chart-card full-width">
         <div class="chart-info">
@@ -142,7 +142,7 @@ const renderCharts = (data) => {
     chart: {
       ...commonOptions.chart,
       type: 'bar',
-      height: 320
+      height: Math.max(320, data.bar_chart.length * 55)
     },
     grid: {
       padding: { right: 60 }
